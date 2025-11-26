@@ -1,7 +1,11 @@
 package br.com.famel;
 
+import br.com.famel.model.Task;
 import br.com.famel.model.Textos;
+import java.time.LocalDate;
 
+
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class App
@@ -10,14 +14,31 @@ public class App
     {
         Scanner sc = new Scanner(System.in);
 
+
         System.out.println(Textos.BemVindo);
         System.out.println(Textos.Opcoes);
         int escolha = sc.nextInt();
 
+
+
         switch (escolha){
+
             //Adicionar nova Task
             case 1:
-                System.out.println("1");
+                //Construtor da classe Task
+                Task task = new Task();
+                
+                //Pega o nome da Task
+                System.out.println("Nome da Task: ");
+                task.setNome(sc.next());
+                
+                //Pega a descrição da Task
+                System.out.println("Descrição da Task: ");
+                task.setDescricao(sc.next());
+                
+                //Pega a data atual
+                LocalDate currentDate = LocalDate.now();
+                task.setDataDeCriacao(currentDate);
                 break;
 
             //Atualizar uma Task
