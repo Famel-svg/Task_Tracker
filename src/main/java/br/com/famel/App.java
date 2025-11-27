@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class App
@@ -35,10 +36,24 @@ public class App
                 //Pega a descrição da Task
                 System.out.println("Descrição da Task: ");
                 task.setDescricao(sc.next());
-                
+
+                //Pega o status da Task
+                System.out.println("Status da Task:\n" +
+                        "(1) Para fazer\n(2) Fazendo\n(3) Pronta\n");
+                String status = sc.next();
+                if(Objects.equals(status, "1")){
+                    task.setStatus("Para fazer");
+                } else if (Objects.equals(status, "2")) {
+                    task.setStatus("Fazendo");
+                } else {
+                    task.setStatus("Pronta");
+                }
+
                 //Pega a data atual
                 LocalDate currentDate = LocalDate.now();
                 task.setDataDeCriacao(currentDate);
+
+                System.out.println(task);
                 break;
 
             //Atualizar uma Task
