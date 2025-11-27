@@ -1,0 +1,33 @@
+**Rastreador de Tarefas** é um projeto utilizado para acompanhar e gerenciar suas tarefas. Neste projeto, você irá construir uma interface simples de linha de comando (CLI) para registrar o que precisa fazer, o que já fez e no que está trabalhando atualmente. Este projeto ajudará você a praticar suas habilidades de programação, incluindo o trabalho com o sistema de arquivos, manipulação de entradas de usuário e construção de uma aplicação CLI simples.
+
+### Requisitos
+
+A aplicação deve ser executada a partir da linha de comando, aceitar ações e entradas do usuário como argumentos e armazenar as tarefas em um arquivo JSON. O usuário deve ser capaz de:
+
+* Adicionar, Atualizar e Deletar tarefas
+* Marcar uma tarefa como em andamento ou concluída
+* Listar todas as tarefas
+* Listar todas as tarefas concluídas
+* Listar todas as tarefas não concluídas
+* Listar todas as tarefas em andamento
+
+### Algumas restrições para guiar a implementação:
+
+* Use argumentos posicionais na linha de comando para aceitar entradas do usuário.
+* Use um arquivo JSON para armazenar as tarefas no diretório atual.
+* O arquivo JSON deve ser criado caso não exista.
+* Use o módulo nativo de sistema de arquivos da sua linguagem de programação para interagir com o arquivo JSON.
+* Não utilize bibliotecas ou frameworks externos para construir este projeto.
+* Garanta o tratamento adequado de erros e casos extremos.
+
+### Propriedades das Tarefas
+
+Cada tarefa deve ter as seguintes propriedades:
+
+* **id**: Um identificador único para a tarefa
+* **description**: Uma descrição curta da tarefa
+* **status**: O status da tarefa (pendente, em andamento, concluída)
+* **createdAt**: A data e hora em que a tarefa foi criada
+* **updatedAt**: A data e hora em que a tarefa foi atualizada pela última vez
+
+Certifique-se de adicionar essas propriedades ao arquivo JSON ao adicionar uma nova tarefa e atualizá-las quando uma tarefa for alterada.
