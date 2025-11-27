@@ -16,19 +16,23 @@ public class Textos {
            "Apagar uma Task (3)\n" +
            "Listar todas as Task (4)\n" +
            "Listar todas as Task prontas (5)\n" +
-           "Listar todas as Task em progresso (6)"
+           "Listar todas as Task em progresso (6)\n" +
+           "Fechar o programa (0)"
     ;
+
+    public static String OpcoesStatus =
+            "Status da Task:\n" +
+            "(1) Para fazer\n(2) Fazendo\n(3) Pront";
 
    public static String Padrao =
            "Digite um numero entre 1 e 6:";
 
    public static String case1 =
            "Task adicionada com sucesso!";
+
+   public static String Atualizar =
+           "Digite o ID da Task que deseja atualizar:";
+
+   public static String AtualizarOpções = "";
+
 }
-
-
-
-
-
-
-
