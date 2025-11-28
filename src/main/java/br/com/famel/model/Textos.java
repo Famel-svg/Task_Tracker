@@ -22,7 +22,7 @@ public class Textos {
 
     public static String OpcoesStatus =
             "Status da Task:\n" +
-            "(1) Para fazer\n(2) Fazendo\n(3) Pront";
+            "(1) Para fazer\n(2) Fazendo\n(3) Pronto";
 
    public static String Padrao =
            "Digite um numero entre 1 e 6:";

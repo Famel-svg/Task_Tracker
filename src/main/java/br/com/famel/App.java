@@ -18,13 +18,13 @@ public class App
         int escolha = sc.nextInt();
 
         do {
-
             switch (escolha){
 
                 //Adicionar nova Task
                 case 1:
                     //Construtor da classe Task
                     Task task = new Task();
+                    task.gerarId();
 
                     //Pega o nome da Task
                     System.out.println("Nome da Task: ");
@@ -36,14 +36,8 @@ public class App
 
                     //Pega o status da Task
                     System.out.println(OpcoesStatus);
-                    String status = sc.next();
-                    if(Objects.equals(status, "1")){
-                        task.setStatus("Para fazer");
-                    } else if (Objects.equals(status, "2")) {
-                        task.setStatus("Fazendo");
-                    } else {
-                        task.setStatus("Pronta");
-                    }
+                    task.setStatus(sc.next());
+
 
                     //Pega a data atual
                     LocalDate currentDate = LocalDate.now();
@@ -51,7 +45,6 @@ public class App
                     System.out.println("Task adicionada com sucesso!");
 
                     //System.out.println(task);
-
                     System.out.println(Textos.Opcoes);
                     escolha = sc.nextInt();
 
@@ -69,21 +62,29 @@ public class App
                 //Apagar uma Task
                 case 3:
                     System.out.println("3");
+                    System.out.println(Textos.Opcoes);
+                    escolha = sc.nextInt();
                     break;
 
                 //Listar todas as Task
                 case 4:
                     System.out.println("4");
+                    System.out.println(Textos.Opcoes);
+                    escolha = sc.nextInt();
                     break;
 
                 //Listar todas as Task prontas
                 case 5:
                     System.out.println("5");
+                    System.out.println(Textos.Opcoes);
+                    escolha = sc.nextInt();
                     break;
 
                 //Listar todas as Task em progresso
                 case 6:
                     System.out.println("6");
+                    System.out.println(Textos.Opcoes);
+                    escolha = sc.nextInt();
                     break;
                 default:
                     System.out.println(Textos.Padrao);

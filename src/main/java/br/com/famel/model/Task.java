@@ -1,21 +1,25 @@
 package br.com.famel.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Task {
-    int id;
-    String nome;
-    String descricao;
-    String status;
-    LocalDate dataDeCriacao;
-    LocalDate dataDeConclusao;
+    private int id;
+    private String nome;
+    private String descricao;
+    private String status;
+    private LocalDate dataDeCriacao;
+    private LocalDate dataDeConclusao;
+
+    private static int contadorId = 0;
+
+    public void gerarId() {
+        contadorId ++;
+        this.id = contadorId;
+    }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getNome() {
@@ -38,7 +42,18 @@ public class Task {
         return status;
     }
 
+    public void setStatus(int status) {
+        setStatus(String.valueOf(status));
+    }
+
     public void setStatus(String status) {
+        if (Objects.equals(status,  "1")) {
+            setStatus("Para fazer");
+        } else if (Objects.equals(status, "2")) {
+            setStatus("Fazendo");
+        } else {
+            setStatus("Pronta");
+        }
         this.status = status;
     }
 
