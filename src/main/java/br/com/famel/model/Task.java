@@ -1,7 +1,6 @@
 package br.com.famel.model;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 public class Task {
     private int id;
@@ -9,7 +8,7 @@ public class Task {
     private String descricao;
     private String status;
     private LocalDate dataDeCriacao;
-    private LocalDate dataDeConclusao;
+    private LocalDate dataDeAtualizacao;
 
     private static int contadorId = 0;
 
@@ -42,19 +41,16 @@ public class Task {
         return status;
     }
 
-    public void setStatus(int status) {
-        setStatus(String.valueOf(status));
-    }
-
-    public void setStatus(String status) {
-        if (Objects.equals(status,  "1")) {
-            setStatus("Para fazer");
-        } else if (Objects.equals(status, "2")) {
-            setStatus("Fazendo");
-        } else {
-            setStatus("Pronta");
-        }
-        this.status = status;
+    public  void setStatus(String status) {
+            if ("1".equals(status)) {
+                this.status = "Para fazer";
+            } else if ("2".equals(status)) {
+                this.status = "Fazendo";
+            } else if ("3".equals(status)) {
+                this.status = "Pronta";
+            } else {
+                this.status = status;
+            }
     }
 
     public LocalDate getDataDeCriacao() {
@@ -65,12 +61,12 @@ public class Task {
         this.dataDeCriacao = dataDeCriacao;
     }
 
-    public LocalDate getDataDeConclusao() {
-        return dataDeConclusao;
+    public LocalDate getdataDeAtualizacao() {
+        return dataDeAtualizacao;
     }
 
-    public void setDataDeConclusao(LocalDate dataDeConclusao) {
-        this.dataDeConclusao = dataDeConclusao;
+    public void setdataDeAtualizacao(LocalDate dataDeAtualizacao) {
+        this.dataDeAtualizacao = dataDeAtualizacao;
     }
 
     @Override
@@ -81,6 +77,6 @@ public class Task {
                 "Descrição = " + descricao + "\n" +
                 "Status = " + status + "\n" +
                 "Data de criação = " + dataDeCriacao + "\n" +
-                "Data de conclusão = " + dataDeConclusao;
+                "Data de Atualização = " + dataDeAtualizacao;
     }
 }

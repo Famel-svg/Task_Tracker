@@ -3,7 +3,6 @@ package br.com.famel;
 import br.com.famel.model.Task;
 import br.com.famel.model.Textos;
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Scanner;
 import static br.com.famel.model.Textos.OpcoesStatus;
 
@@ -44,7 +43,7 @@ public class App
                     task.setDataDeCriacao(currentDate);
                     System.out.println("Task adicionada com sucesso!");
 
-                    //System.out.println(task);
+//                    System.out.println(task);
                     System.out.println(Textos.Opcoes);
                     escolha = sc.nextInt();
 
