@@ -1,6 +1,7 @@
 package br.com.famel.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class Task {
     private int id;
@@ -69,6 +70,8 @@ public class Task {
         this.dataDeAtualizacao = dataDeAtualizacao;
     }
 
+
+
     @Override
     public String toString() {
         return "Task\n" +
@@ -77,6 +80,6 @@ public class Task {
                 "Descrição = " + descricao + "\n" +
                 "Status = " + status + "\n" +
                 "Data de criação = " + dataDeCriacao + "\n" +
-                "Data de Atualização = " + dataDeAtualizacao;
+                "Data de Atualização = " + dataDeAtualizacao + "\n";
     }
 }

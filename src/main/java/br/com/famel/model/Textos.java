@@ -33,6 +33,7 @@ public class Textos {
    public static String Atualizar =
            "Digite o ID da Task que deseja atualizar:";
 
-   public static String AtualizarOpções = "";
+   public static String AtualizarOpções = "O que deseja atualizar? \n(1) Nome \n (2) Descrição \n (3) Status";
+
 
 }
