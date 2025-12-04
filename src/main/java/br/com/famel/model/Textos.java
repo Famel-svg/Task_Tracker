@@ -30,10 +30,16 @@ public class Textos {
    public static String case1 =
            "Task adicionada com sucesso!";
 
+   public static String case2 =
+           "Task atualizada com sucesso!";
+
+   public static String case3 =
+           "Task deletada com sucesso!";
+
    public static String Atualizar =
            "Digite o ID da Task que deseja atualizar:";
 
-   public static String AtualizarOpções = "O que deseja atualizar? \n(1) Nome \n (2) Descrição \n (3) Status";
+   public static String AtualizarOpcoes = "O que deseja atualizar? \n(1) Nome \n (2) Descrição \n (3) Status";
 
 
 }

@@ -1,7 +1,6 @@
 package br.com.famel.model;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class Task {
     private int id;
@@ -9,7 +8,7 @@ public class Task {
     private String descricao;
     private String status;
     private LocalDate dataDeCriacao;
-    private LocalDate dataDeAtualizacao;
+    private LocalDate dataDeFinalizacao;
 
     private static int contadorId = 0;
 
@@ -49,6 +48,7 @@ public class Task {
                 this.status = "Fazendo";
             } else if ("3".equals(status)) {
                 this.status = "Pronta";
+                this.dataDeFinalizacao = LocalDate.now();
             } else {
                 this.status = status;
             }
@@ -63,11 +63,11 @@ public class Task {
     }
 
     public LocalDate getdataDeAtualizacao() {
-        return dataDeAtualizacao;
+        return dataDeFinalizacao;
     }
 
     public void setdataDeAtualizacao(LocalDate dataDeAtualizacao) {
-        this.dataDeAtualizacao = dataDeAtualizacao;
+        this.dataDeFinalizacao = dataDeAtualizacao;
     }
 
 
@@ -80,6 +80,6 @@ public class Task {
                 "Descrição = " + descricao + "\n" +
                 "Status = " + status + "\n" +
                 "Data de criação = " + dataDeCriacao + "\n" +
-                "Data de Atualização = " + dataDeAtualizacao + "\n";
+                "Data de Atualização = " + dataDeFinalizacao + "\n";
     }
 }
