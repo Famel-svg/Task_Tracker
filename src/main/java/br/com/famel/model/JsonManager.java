@@ -8,13 +8,14 @@ public class JsonManager {
 //Leitura
 
 
+
 //Identa as informações
 private static String indent(int nivel) {
     return "    ".repeat(nivel);
 }
 
 //Gera o JSON
-public static void salvarEmJson(List<Task> lista) {
+public static void salvarEmJson(List<Task> lista) throws IOException {
     StringBuilder builder = new StringBuilder();
     
     // 1. Escrever [
@@ -27,11 +28,15 @@ public static void salvarEmJson(List<Task> lista) {
         builder.append(indent(1));
         builder.append("{");
         builder.append("\n");
+
+        //Task ID
         builder.append(indent(2));
         builder.append("\"Id\": ");
         builder.append(task.getId());
         builder.append(",");
         builder.append("\n");
+
+        //Task Nome
         builder.append(indent(2));
         builder.append("\"Nome\": ");
         builder.append("\"");
@@ -39,6 +44,8 @@ public static void salvarEmJson(List<Task> lista) {
         builder.append("\"");
         builder.append(",");
         builder.append("\n");
+
+        //Task Descricao
         builder.append(indent(2));
         builder.append("\"Descricao\": ");
         builder.append("\"");
@@ -46,6 +53,8 @@ public static void salvarEmJson(List<Task> lista) {
         builder.append("\"");
         builder.append(",");
         builder.append("\n");
+
+        //Task Status
         builder.append(indent(2));
         builder.append("\"Status\": ");
         builder.append("\"");
@@ -53,11 +62,17 @@ public static void salvarEmJson(List<Task> lista) {
         builder.append("\"");
         builder.append(",");
         builder.append("\n");
+
+        //Task Data de Criacao
         builder.append(indent(2));
-        builder.append("\"DataDeCriacao\": \"");
+        builder.append("\"DataDeCriacao\": ");
+        builder.append("\"");
         builder.append(task.getDataDeCriacao());
-        builder.append("\",");
+        builder.append("\"");
+        builder.append(",");
         builder.append("\n");
+
+        //Task Data de Finalizacao
         builder.append(indent(2));
         builder.append("\"DataDeFinalizacao\": ");
         builder.append("\"");

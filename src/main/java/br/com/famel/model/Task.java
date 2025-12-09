@@ -62,7 +62,7 @@ public class Task {
         this.dataDeCriacao = dataDeCriacao;
     }
 
-    public LocalDate getdataDeAtualizacao() {
+    public LocalDate getDataDeFinalizacao() {
         return dataDeFinalizacao;
     }
 
