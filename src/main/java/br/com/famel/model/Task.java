@@ -66,10 +66,6 @@ public class Task {
         return dataDeFinalizacao;
     }
 
-    public void setdataDeAtualizacao(LocalDate dataDeAtualizacao) {
-        this.dataDeFinalizacao = dataDeAtualizacao;
-    }
-
     @Override
     public String toString() {
         return "Task\n" +
