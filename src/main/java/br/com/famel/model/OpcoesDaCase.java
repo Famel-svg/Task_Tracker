@@ -63,6 +63,7 @@ public class OpcoesDaCase {
 
                     case 2:
                         System.out.println("Digite a nova descrição da Task: ");
+                        System.out.println(Textos.OpcoesStatus);
                         t.setDescricao(sc.next());
                         break;
 
@@ -111,7 +112,7 @@ public class OpcoesDaCase {
         // lógica do case 5
         achou = false;
         for (Task t : lista) {
-            if (t.getStatus().equals("Pronto")) {
+            if (t.getStatus().equals("Pronta")) {
                 achou = true;
 
                 System.out.println(t);

@@ -26,24 +26,20 @@ public static void salvarEmJson(List<Task> lista) throws IOException {
         Task task = lista.get(i);
         builder.append("\n");
         builder.append(indent(1));
-        builder.append("{");
-        builder.append("\n");
+        builder.append("{\n");
 
         //Task ID
         builder.append(indent(2));
         builder.append("\"Id\": ");
         builder.append(task.getId());
-        builder.append(",");
-        builder.append("\n");
+        builder.append(",\n");
 
         //Task Nome
         builder.append(indent(2));
         builder.append("\"Nome\": ");
         builder.append("\"");
         builder.append(task.getNome());
-        builder.append("\"");
-        builder.append(",");
-        builder.append("\n");
+        builder.append("\",\n");
 
         //Task Descricao
         builder.append(indent(2));
@@ -51,34 +47,28 @@ public static void salvarEmJson(List<Task> lista) throws IOException {
         builder.append("\"");
         builder.append(task.getDescricao());
         builder.append("\"");
-        builder.append(",");
-        builder.append("\n");
+        builder.append(",\n");
 
         //Task Status
         builder.append(indent(2));
         builder.append("\"Status\": ");
         builder.append("\"");
         builder.append(task.getStatus());
-        builder.append("\"");
-        builder.append(",");
-        builder.append("\n");
+        builder.append("\",\n");
 
         //Task Data de Criacao
         builder.append(indent(2));
         builder.append("\"DataDeCriacao\": ");
         builder.append("\"");
         builder.append(task.getDataDeCriacao());
-        builder.append("\"");
-        builder.append(",");
-        builder.append("\n");
+        builder.append("\",\n");
 
         //Task Data de Finalizacao
         builder.append(indent(2));
         builder.append("\"DataDeFinalizacao\": ");
         builder.append("\"");
         builder.append(task.getDataDeFinalizacao());
-        builder.append("\"");
-        builder.append("\n");
+        builder.append("\"\n");
         builder.append(indent(1));
         builder.append("}");
         // 3. Escrever cada objeto

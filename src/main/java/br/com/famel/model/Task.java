@@ -70,8 +70,6 @@ public class Task {
         this.dataDeFinalizacao = dataDeAtualizacao;
     }
 
-
-
     @Override
     public String toString() {
         return "Task\n" +

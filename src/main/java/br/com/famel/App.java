@@ -1,16 +1,18 @@
 package br.com.famel;
 
+import br.com.famel.model.JsonManager;
 import br.com.famel.model.OpcoesDaCase;
 import br.com.famel.model.Task;
 import br.com.famel.model.Textos;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class App
 {
-    public static void main( String[] args )
-    {
+    public static void main(String[] args ) throws IOException {
         Scanner sc = new Scanner(System.in);
 
         System.out.println(Textos.BemVindo);
@@ -69,6 +71,8 @@ public class App
 
             }
         } while (escolha != 0);
+
+        JsonManager.salvarEmJson(lista);
 
     sc.close();
     }
