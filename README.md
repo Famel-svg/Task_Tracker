@@ -34,12 +34,6 @@
 - IDs únicos e timestamps (`createdAt`, `updatedAt`).
 - Projeto sem dependências externas — somente módulos nativos.
 
-## 🖼️ Captura rápida
-<!-- Use um placeholder público para garantir que a imagem apareça -->
-<p align="center">
-  <img alt="Screenshot exemplo" src="https://via.placeholder.com/900x260.png?text=Task+Tracker+-+CLI" />
-</p>
-
 ---
 
 ## 🧭 Roadmap (status)
