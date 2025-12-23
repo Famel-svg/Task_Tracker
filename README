@@ -1,33 +1,163 @@
-**Rastreador de Tarefas** é um projeto utilizado para acompanhar e gerenciar suas tarefas. Neste projeto, você irá construir uma interface simples de linha de comando (CLI) para registrar o que precisa fazer, o que já fez e no que está trabalhando atualmente. Este projeto ajudará você a praticar suas habilidades de programação, incluindo o trabalho com o sistema de arquivos, manipulação de entradas de usuário e construção de uma aplicação CLI simples.
+# Rastreador de Tarefas (Task Tracker)
 
-### Requisitos
+https://roadmap.sh/projects/task-tracker
 
-A aplicação deve ser executada a partir da linha de comando, aceitar ações e entradas do usuário como argumentos e armazenar as tarefas em um arquivo JSON. O usuário deve ser capaz de:
+![GitHub repo size](https://img.shields.io/github/repo-size/Famel-svg/Task_Tracker?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/Famel-svg/Task_Tracker?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/Famel-svg/Task_Tracker?style=for-the-badge)
 
-* Adicionar, Atualizar e Deletar tarefas
-* Marcar uma tarefa como em andamento ou concluída
-* Listar todas as tarefas
-* Listar todas as tarefas concluídas
-* Listar todas as tarefas não concluídas
-* Listar todas as tarefas em andamento
+> Um pequeno aplicativo de linha de comando (CLI) para gerenciar tarefas localmente usando um arquivo JSON. Ideal para aprender manipulação de arquivos, argumentos posicionais e persistência simples sem dependências externas.
 
-### Algumas restrições para guiar a implementação:
+Visite também o roadmap de referência usado como base: [Task Tracker — roadmap.sh](https://roadmap.sh/projects/task-tracker)
 
-* Use argumentos posicionais na linha de comando para aceitar entradas do usuário.
-* Use um arquivo JSON para armazenar as tarefas no diretório atual.
-* O arquivo JSON deve ser criado caso não exista.
-* Use o módulo nativo de sistema de arquivos da sua linguagem de programação para interagir com o arquivo JSON.
-* Não utilize bibliotecas ou frameworks externos para construir este projeto.
-* Garanta o tratamento adequado de erros e casos extremos.
+### Ajustes e melhorias planejadas
 
-### Propriedades das Tarefas
+- [x] Criar CLI básico (adicionar, listar, remover)
+- [x] Armazenamento em JSON no diretório atual
+- [x] Suporte para marcar status (pendente, em andamento, concluída)
+- [X] Filtros avançados (por prioridade, data, pesquisa por texto)
 
-Cada tarefa deve ter as seguintes propriedades:
+## ❗ Requisitos
 
-* **id**: Um identificador único para a tarefa
-* **description**: Uma descrição curta da tarefa
-* **status**: O status da tarefa (pendente, em andamento, concluída)
-* **createdAt**: A data e hora em que a tarefa foi criada
-* **updatedAt**: A data e hora em que a tarefa foi atualizada pela última vez
+- Um interpretador/compilador para a linguagem escolhida (ex.: Node.js >= 14 se implementar em JavaScript, ou Python 3.8+ se em Python).
+- Acesso de leitura/escrita ao diretório onde a aplicação for executada.
+- Nenhuma biblioteca externa é necessária — a implementação usa apenas módulos nativos.
 
-Certifique-se de adicionar essas propriedades ao arquivo JSON ao adicionar uma nova tarefa e atualizá-las quando uma tarefa for alterada.
+## 🚀 Instalando / Preparando para executar
+
+Este projeto é intencionalmente simples e não usa dependências externas. As instruções abaixo são exemplos genéricos; ajuste conforme a linguagem/estrutura do repositório.
+
+Linux/macOS (exemplo genérico):
+```bash
+# Se o projeto for em Node.js
+git clone https://github.com/Famel-svg/Task_Tracker.git
+cd Task_Tracker
+# Se houver script executável principal, torne-o executável
+chmod +x task-tracker
+# Execute diretamente (ou via node/python conforme implementação)
+./task-tracker <comando> [argumentos]
+```
+
+Windows (exemplo genérico):
+```powershell
+git clone https://github.com/Famel-svg/Task_Tracker.git
+cd Task_Tracker
+# Execute conforme implementação, por exemplo:
+.\task-tracker.exe <comando> [argumentos]
+# ou
+python task_tracker.py <comando> [argumentos]
+```
+
+## ☕ Uso (CLI — exemplos)
+
+A ideia central é aceitar argumentos posicionais. Abaixo há um conjunto sugerido de comandos e exemplos de uso — adapte aos nomes dos scripts/entradas da implementação.
+
+- Adicionar uma tarefa
+```bash
+# formato: task add "Descrição da tarefa"
+./task-tracker add "Comprar mantimentos"
+```
+
+- Atualizar uma tarefa (descrição e/ou status)
+```bash
+# formato: task update <id> "Nova descrição" <status>
+./task-tracker update 3 "Finalizar relatório mensal" concluída
+```
+
+- Deletar uma tarefa
+```bash
+# formato: task delete <id>
+./task-tracker delete 2
+```
+
+- Marcar como em andamento (exemplo usando update)
+```bash
+./task-tracker update 5 "Implementar API" andamento
+```
+
+- Listar todas as tarefas
+```bash
+./task-tracker list
+```
+
+- Listar somente concluídas / não concluídas / em andamento
+```bash
+# formato: task list <status>
+./task-tracker list concluída
+./task-tracker list pendente
+./task-tracker list andamento
+```
+
+- Procurar texto nas descrições (se implementado)
+```bash
+# formato sugerido: task search "texto"
+./task-tracker search "relatório"
+```
+
+Observação: a aplicação deve validar argumentos posicionais e mostrar ajuda quando os parâmetros forem inválidos:
+```bash
+./task-tracker help
+```
+
+## 🗂 Estrutura de armazenamento (tasks.json)
+
+As tarefas são armazenadas em um arquivo JSON no diretório atual (criado automaticamente caso não exista). Cada tarefa possui as seguintes propriedades mínimas:
+
+- id: identificador único (número ou string)
+- description: descrição curta da tarefa
+- status: "pendente", "andamento" ou "concluída"
+- createdAt: timestamp ISO 8601 de criação
+- updatedAt: timestamp ISO 8601 da última atualização
+
+Exemplo de conteúdo do arquivo `tasks.json`:
+```json
+[
+  {
+    "id": 1,
+    "description": "Comprar mantimentos",
+    "status": "pendente",
+    "createdAt": "2025-12-23T10:00:00.000Z",
+    "updatedAt": "2025-12-23T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "description": "Finalizar relatório mensal",
+    "status": "concluída",
+    "createdAt": "2025-12-20T09:30:00.000Z",
+    "updatedAt": "2025-12-22T16:45:00.000Z"
+  }
+]
+```
+
+Regras importantes:
+- O arquivo JSON deve ser criado automaticamente ao adicionar a primeira tarefa.
+- Evitar condições de corrida (bloqueio/lock) se múltiplas instâncias puderem gravar simultaneamente.
+- Garantir integridade do JSON ao salvar (salvar em arquivo temporário + renomear atômico, se possível).
+
+## 🧭 Design & Restrições
+
+- Use argumentos posicionais (não dependa de bibliotecas de CLI externas).
+- Use apenas o módulo nativo de sistema de arquivos da linguagem escolhida para ler/escrever `tasks.json`.
+- Não use frameworks/bibliotecas externas.
+- Trate erros e casos limites (arquivo corrompido, entrada inválida, id não encontrado).
+- IDs podem ser inteiros autoincrementais ou UUIDs — escolha e documente no código.
+
+## 🛠 Dicas de implementação (boas práticas)
+
+- Valide e normalize o status (aceite sinônimos como "em andamento" / "andamento").
+- Sempre atualizar o campo `updatedAt` ao alterar a tarefa.
+- Ao listar, permita ordenar por `createdAt`, `updatedAt` ou `id`.
+- Para melhorar a usabilidade, implemente mensagens claras de sucesso/erro e código de saída (exit code).
+- Para testes locais, mantenha um `tasks.example.json` com dados de exemplo.
+
+## 📫 Como contribuir
+
+Quer contribuir com o projeto? Siga estas etapas:
+
+1. Faça um fork deste repositório.
+2. Crie um branch: `git checkout -b feat/nome-da-caracteristica`
+3. Faça suas alterações e commit: `git commit -m 'Minha contribuição'`
+4. Envie para o branch remoto: `git push origin feat/nome-da-caracteristica`
+5. Abra um Pull Request descrevendo as mudanças e testes realizados.
+
+Considere abrir issues para discutir funcionalidades maiores antes de implementá-las.
