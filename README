@@ -1,147 +1,102 @@
 # 🚀 Rastreador de Tarefas (Task Tracker)
 
 <p align="center">
+  <!-- Badges clicáveis como imagens (devem sempre aparecer) -->
   <a href="https://github.com/Famel-svg/Task_Tracker">
-    <img alt="Task Tracker" src="https://raw.githubusercontent.com/Famel-svg/Task_Tracker/main/assets/banner.png" width="820" />
+    <img alt="Repo size" src="https://img.shields.io/github/repo-size/Famel-svg/Task_Tracker?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Famel-svg/Task_Tracker/search?l=all">
+    <img alt="Languages" src="https://img.shields.io/github/languages/count/Famel-svg/Task_Tracker?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Famel-svg/Task_Tracker/network/members">
+    <img alt="Forks" src="https://img.shields.io/github/forks/Famel-svg/Task_Tracker?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Famel-svg/Task_Tracker/stargazers">
+    <img alt="Stars" src="https://img.shields.io/github/stars/Famel-svg/Task_Tracker?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Famel-svg/Task_Tracker/issues">
+    <img alt="Issues" src="https://img.shields.io/github/issues/Famel-svg/Task_Tracker?style=for-the-badge" />
+  </a>
+  <a href="https://roadmap.sh/projects/task-tracker">
+    <img alt="Roadmap" src="https://img.shields.io/badge/roadmap-reference-blue?style=for-the-badge" />
   </a>
 </p>
 
-<p align="center">
-  <!-- Badges (imagens clicáveis) -->
-  <a href="https://github.com/Famel-svg/Task_Tracker"><img alt="Repo size" src="https://img.shields.io/github/repo-size/Famel-svg/Task_Tracker?style=for-the-badge" /></a>
-  <a href="https://github.com/Famel-svg/Task_Tracker/search?l=all"><img alt="Languages" src="https://img.shields.io/github/languages/count/Famel-svg/Task_Tracker?style=for-the-badge" /></a>
-  <a href="https://github.com/Famel-svg/Task_Tracker/network/members"><img alt="Forks" src="https://img.shields.io/github/forks/Famel-svg/Task_Tracker?style=for-the-badge" /></a>
-  <a href="https://github.com/Famel-svg/Task_Tracker/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/Famel-svg/Task_Tracker?style=for-the-badge" /></a>
-  <a href="https://github.com/Famel-svg/Task_Tracker/issues"><img alt="Issues" src="https://img.shields.io/github/issues/Famel-svg/Task_Tracker?style=for-the-badge" /></a>
-  <a href="https://roadmap.sh/projects/task-tracker"><img alt="Roadmap" src="https://img.shields.io/badge/roadmap-reference-blue?style=for-the-badge" /></a>
-</p>
-
-> Um aplicativo de linha de comando (CLI) simples para gerenciar tarefas localmente usando um arquivo JSON — ideal para aprender manipulação de arquivos, argumentos posicionais e persistência sem dependências externas.
-
-Visite o roadmap de referência: [Task Tracker — roadmap.sh](https://roadmap.sh/projects/task-tracker)
-
-## 📌 Sumário
-- [Destaques](#-destaques)
-- [Status / Roadmap](#-status--roadmap)
-- [Requisitos](#-requisitos)
-- [Instalação / Execução](#-instalação--execução)
-- [Uso (exemplos de CLI)](#-uso-cli---exemplos)
-- [Formato do armazenamento (tasks.json)](#-formato-do-armazenamento-tasksjson)
-- [Design e restrições](#-design-e-restrições)
-- [Boas práticas de implementação](#-boas-práticas-de-implementação)
-- [Contribuindo](#-contribuindo)
-- [Licença](#-licença)
+> Um aplicativo CLI simples para gerenciar tarefas localmente usando um arquivo JSON — ideal para aprendizado e uso rápido sem dependências externas. (Referência: [Task Tracker — roadmap.sh](https://roadmap.sh/projects/task-tracker))
 
 ---
 
-## ✨ Destaques
-- CLI leve e sem dependências externas.
-- Armazenamento local em `tasks.json`.
-- Status de tarefa: `pendente`, `andamento`, `concluída`.
-- IDs únicos, timestamps de criação/atualização.
-- Projetado para ser didático e extensível.
+## ✨ Principais funcionalidades
+- Criar, atualizar e deletar tarefas.
+- Marcar status: `pendente`, `andamento`, `concluída`.
+- Listar tarefas (todas / por status).
+- Persistência local em `tasks.json` (criado automaticamente).
+- IDs únicos e timestamps (`createdAt`, `updatedAt`).
+- Projeto sem dependências externas — somente módulos nativos.
 
-## 🗺 Status / Roadmap
+## 🖼️ Captura rápida
+<!-- Use um placeholder público para garantir que a imagem apareça -->
+<p align="center">
+  <img alt="Screenshot exemplo" src="https://via.placeholder.com/900x260.png?text=Task+Tracker+-+CLI" />
+</p>
+
+---
+
+## 🧭 Roadmap (status)
 - [x] CLI básico: adicionar, listar, remover
 - [x] Armazenamento em JSON no diretório atual
 - [x] Suporte a status (pendente, andamento, concluída)
 - [x] Filtros básicos (por status)
-- [ ] Filtros avançados (prioridade, data, busca por texto)
-- [ ] Exportar / Importar (CSV / JSON)
-- [ ] Testes automatizados e CI
-- [ ] Interface TUI / Web (opcional)
 
 ---
 
-## ❗ Requisitos
-- Interpretador/execução da linguagem escolhida (ex.: Node.js 14+, Python 3.8+).
-- Permissão de leitura/escrita no diretório onde for executado.
-- Não requer bibliotecas externas: usa apenas módulos nativos.
-
----
-
-## 🚀 Instalação / Preparação
-Estas instruções são exemplos genéricos. Ajuste conforme a linguagem do repositório.
-
-Linux / macOS:
-```bash
-git clone https://github.com/Famel-svg/Task_Tracker.git
-cd Task_Tracker
-# exemplo Node.js
-chmod +x task-tracker
-./task-tracker <comando> [argumentos]
-```
-
-Windows (PowerShell):
-```powershell
-git clone https://github.com/Famel-svg/Task_Tracker.git
-cd Task_Tracker
-# exemplo Python
-python task_tracker.py <comando> [argumentos]
-```
-
----
+## ⚙️ Requisitos
+- Interpretador/ambiente correspondente à linguagem escolhida (ex.: Node.js 14+ / Python 3.8+).
+- Permissão de leitura/escrita no diretório de execução.
+- Nenhuma dependência externa necessária (projeto ensina uso de APIs nativas de arquivos).
 
 ## ☕ Uso (CLI — exemplos)
-A CLI aceita argumentos posicionais. Exemplos sugeridos (adapte ao nome do executável/script):
+A CLI usa argumentos posicionais. Substitua `./task-tracker` pelo seu executável/script.
 
-- Adicionar uma tarefa
+Adicionar tarefa:
 ```bash
 ./task-tracker add "Comprar mantimentos"
 ```
 
-- Atualizar descrição e/ou status
+Atualizar tarefa (descrição e/ou status):
 ```bash
+./task-tracker update <id> "Nova descrição" andamento
+# exemplo
 ./task-tracker update 3 "Finalizar relatório mensal" concluída
 ```
 
-- Deletar tarefa
+Deletar tarefa:
 ```bash
-./task-tracker delete 2
+./task-tracker delete <id>
 ```
 
-- Marcar como em andamento
+Listar tarefas:
 ```bash
-./task-tracker update 5 "Implementar API" andamento
+./task-tracker list            # todas
+./task-tracker list pendente   # somente pendentes
+./task-tracker list andamento  # somente em andamento
+./task-tracker list concluída   # somente concluídas
 ```
 
-- Listar todas tarefas
-```bash
-./task-tracker list
-```
-
-- Listar por status
-```bash
-./task-tracker list concluída
-./task-tracker list pendente
-./task-tracker list andamento
-```
-
-- Buscar texto na descrição (se implementado)
+Buscar texto (se implementado):
 ```bash
 ./task-tracker search "relatório"
 ```
 
-- Ajuda
+Ajuda:
 ```bash
 ./task-tracker help
 ```
 
-Observação: a CLI deve validar argumentos e retornar mensagens claras + códigos de saída (exit codes).
-
 ---
 
-## 🗂 Formato do armazenamento (tasks.json)
-As tarefas ficam num arquivo `tasks.json` no diretório atual. O arquivo é criado automaticamente ao adicionar a primeira tarefa.
-
-Propriedades obrigatórias por tarefa:
-- id: identificador único (número autoincremental ou UUID)
-- description: texto descritivo
-- status: "pendente" | "andamento" | "concluída"
-- createdAt: timestamp ISO 8601
-- updatedAt: timestamp ISO 8601
-
-Exemplo:
+## 🗂️ Formato do arquivo (tasks.json)
+O arquivo `tasks.json` é um array de objetos. Exemplo:
 ```json
 [
   {
@@ -159,55 +114,49 @@ Exemplo:
     "updatedAt": "2025-12-22T16:45:00.000Z"
   }
 ]
-```
-
-Boas práticas ao salvar:
-- Criar arquivo temporário e renomear (salvamento atômico).
-- Tratar e recuperar de JSON corrompido (backup / prompt de recuperação).
-- Evitar condições de corrida se múltiplas instâncias escreverem simultaneamente.
 
 ---
 
-## 🧭 Design & Restrições
-- Use argumentos posicionais (sem bibliotecas de CLI externas).
-- Use apenas o módulo nativo de sistema de arquivos para ler/escrever `tasks.json`.
-- Não use frameworks externos.
-- Trate erros e casos extremos (id inexistente, entrada inválida, arquivo corrompido).
-- IDs: escolha entre inteiro autoincremental ou UUID e documente a escolha no código.
+## 🧩 Boas práticas de implementação
+- Normalizar status (`andamento` ⇄ `em andamento`).
+- Atualizar `updatedAt` em todas as modificações.
+- Permitir ordenação por `createdAt`, `updatedAt`, `id`.
+- Mensagens claras com exit codes apropriados.
+- Suportar `--dry-run` para simular alterações (opcional).
+- Incluir `tasks.example.json` para testes.
 
 ---
 
-## 🛠 Boas práticas de implementação
-- Normalizar o status (ex.: aceitar "em andamento" e "andamento").
-- Atualizar `updatedAt` em toda modificação.
-- Permitir ordenação por `createdAt`, `updatedAt` ou `id` ao listar.
-- Mensagens claras de sucesso/erro e códigos de saída (0 = sucesso, !=0 = erro).
-- Fornecer um `tasks.example.json` para testes locais.
-- Considerar flag `--dry-run` para simular alterações sem gravar.
+## 🛠️ Estrutura sugerida do projeto
+- task-tracker (executável / script principal)
+- README (este arquivo)
+- tasks.json (gerado em runtime)
+- tasks.example.json (opcional, com exemplos)
+- CONTRIBUTING.md (opcional)
 
 ---
 
-## 🤝 Como contribuir
+## 🧾 Como contribuir
 1. Faça um fork do repositório.
 2. Crie um branch: `git checkout -b feat/nome-da-caracteristica`
-3. Faça commits descritivos: `git commit -m "Descrição da mudança"`
+3. Faça commits claros: `git commit -m "Descrição da mudança"`
 4. Envie: `git push origin feat/nome-da-caracteristica`
-5. Abra um Pull Request descrevendo as mudanças e testes realizados.
+5. Abra um Pull Request descrevendo alterações e testes.
 
 Dicas:
-- Abra uma issue para funcionalidades maiores antes de implementar.
-- Escreva testes (se possível) e inclua instruções de execução.
+- Abra uma issue para propostas maiores.
+- Inclua testes quando possível.
 
 ---
 
-## 📝 Licença
-Adicione um arquivo `LICENSE` com a licença escolhida (ex.: MIT). Atualmente o repositório não contém um arquivo de licença explícito — adicione quando decidir os termos.
+## 📄 Licença
+Adicione um arquivo `LICENSE` (ex.: MIT) para definir os termos. Atualmente, inclua a licença desejada no repositório ao publicar.
 
 ---
 
-Se quiser, posso:
+## 📬 Contato
+Se quiser, eu posso:
 - Gerar a versão em inglês do README.
-- Adaptar os exemplos para Node.js (script CLI) ou Python (script único).
-- Criar um `tasks.example.json` e um esqueleto básico do CLI para iniciar o projeto.
-
-Qual opção prefere que eu faça a seguir?
+- Adaptar exemplos para uma linguagem específica (Node.js / Python / Go).
+- Criar um `tasks.example.json`.
+- Gerar um esqueleto inicial do CLI (arquivo executável) na linguagem que preferir.
