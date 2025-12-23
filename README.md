@@ -108,7 +108,7 @@ O arquivo `tasks.json` é um array de objetos. Exemplo:
     "updatedAt": "2025-12-22T16:45:00.000Z"
   }
 ]
-
+```
 ---
 
 ## 🧩 Boas práticas de implementação
