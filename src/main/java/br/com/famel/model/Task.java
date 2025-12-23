@@ -12,6 +12,12 @@ public class Task {
 
     private static int contadorId = 0;
 
+    public Task() {
+    }
+
+    public Task(int id, String nome, String descricao, String status, String dataCriacao, String dataFinalizacao) {
+    }
+
     public void gerarId() {
         contadorId ++;
         this.id = contadorId;

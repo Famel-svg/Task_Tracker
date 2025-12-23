@@ -1,12 +1,8 @@
-package br.com.famel;
-
 import br.com.famel.model.JsonManager;
 import br.com.famel.model.OpcoesDaCase;
 import br.com.famel.model.Task;
 import br.com.famel.model.Textos;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -19,7 +15,7 @@ public class App
         System.out.println(Textos.Opcoes);
         int escolha = sc.nextInt();
 
-        List<Task> lista = new ArrayList<>();
+        List<Task> lista = JsonManager.lerDoJson();
 
         do {
             switch (escolha){
