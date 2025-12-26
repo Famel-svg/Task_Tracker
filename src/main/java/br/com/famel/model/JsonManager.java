@@ -1,29 +1,25 @@
 package br.com.famel.model;
 
 //Nao rode esse Arquivo ira gerar um JSON vazio
+import module java.base;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import static java.lang.IO.println;
 
 public class JsonManager {
 
-    public static void main(String[] args) throws IOException {
+    void main() throws IOException {
         // Só para permitir execução direta deste arquivo
-        System.out.println("Testando leitura e escrita de JSON...");
+        println("Testando leitura e escrita de JSON...");
 
         List<Task> lista = new ArrayList<>();
 
         // Testar leitura
         lista = lerDoJson();
-        System.out.println("Tasks carregadas: " + lista.size());
+        println("Tasks carregadas: " + lista.size());
 
         // Testar escrita (pode comentar se quiser)
         salvarEmJson(lista);
-        System.out.println("JSON salvo com sucesso.");
+        println("JSON salvo com sucesso.");
     }
 
 public static List<Task> lerDoJson() throws IOException {

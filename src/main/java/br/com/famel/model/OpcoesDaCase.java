@@ -1,11 +1,9 @@
 package br.com.famel.model;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Scanner;
-
 import static br.com.famel.model.Textos.AtualizarOpcoes;
 import static br.com.famel.model.Textos.OpcoesStatus;
+import static java.lang.IO.println;
+import module java.base;
 
 public class OpcoesDaCase {
     static int idEscolhido;
@@ -19,21 +17,21 @@ public class OpcoesDaCase {
         task.gerarId();
 
         //Pega o nome da Task
-        System.out.println("Nome da Task: ");
+        println("Nome da Task: ");
         task.setNome(sc.next());
 
         //Pega a descrição da Task
-        System.out.println("Descrição da Task: ");
+        println("Descrição da Task: ");
         task.setDescricao(sc.next());
 
         //Pega o status da Task
-        System.out.println(OpcoesStatus);
+        println(OpcoesStatus);
         task.setStatus(sc.next());
 
         //Pega a data atual
         LocalDate currentDate = LocalDate.now();
         task.setDataDeCriacao(currentDate);
-        System.out.println(Textos.case1);
+        println(Textos.case1);
 
         lista.add(task);
     }
@@ -115,12 +113,12 @@ public class OpcoesDaCase {
             if (t.getStatus().equals("Pronta")) {
                 achou = true;
 
-                System.out.println(t);
+                println(t);
             }
         }
 
         if (!achou) {
-            System.out.println("Nenhuma Task pronta.");
+            println("Nenhuma Task pronta.");
         }
     }
 
