@@ -1,26 +1,34 @@
 [
     {
-        "Id": 0,
-        "Nome": "null",
-        "Descricao": "null",
-        "Status": "null",
-        "DataDeCriacao": "null",
-        "DataDeFinalizacao": "null"
+        "Id": 1,
+        "Nome": "Comprar mantimentos",
+        "Descricao": "Ir ao mercado e comprar itens da lista",
+        "Status": "Para fazer",
+        "DataDeCriacao": "2025-01-02",
+        "DataDeFinalizacao": null
     },
     {
-        "Id": 0,
-        "Nome": "null",
-        "Descricao": "null",
-        "Status": "null",
-        "DataDeCriacao": "null",
-        "DataDeFinalizacao": "null"
+        "Id": 2,
+        "Nome": "Finalizar relatório mensal",
+        "Descricao": "Completar análise de vendas de dezembro",
+        "Status": "Pronta",
+        "DataDeCriacao": "2024-12-20",
+        "DataDeFinalizacao": "2024-12-22"
     },
     {
-        "Id": 0,
-        "Nome": "null",
-        "Descricao": "null",
-        "Status": "null",
-        "DataDeCriacao": "null",
-        "DataDeFinalizacao": "null"
+        "Id": 3,
+        "Nome": "Estudar Java",
+        "Descricao": "Revisar conceitos de streams e lambdas",
+        "Status": "Fazendo",
+        "DataDeCriacao": "2025-01-01",
+        "DataDeFinalizacao": null
+    },
+    {
+        "Id": 4,
+        "Nome": "teste",
+        "Descricao": "teste",
+        "Status": "Fazendo",
+        "DataDeCriacao": "2026-01-02",
+        "DataDeFinalizacao": null
     }
 ]

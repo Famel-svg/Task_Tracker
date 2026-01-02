@@ -1,71 +1,112 @@
-import br.com.famel.model.JsonManager;
-import br.com.famel.model.OpcoesDaCase;
-import br.com.famel.model.Task;
 import br.com.famel.model.Textos;
+import br.com.famel.model.entities.*;
 import static java.lang.IO.println;
 
-void main() throws IOException {
-        Scanner sc = new Scanner(System.in);
+void main() {
+    Scanner sc = new Scanner(System.in);
 
+    try {
         println(Textos.BemVindo);
-        println(Textos.Opcoes);
-        int escolha = sc.nextInt();
 
-        List<Task> lista = JsonManager.lerDoJson();
+        // Inicializa o Repository - ele já carrega as tasks automaticamente
+        TaskRepository repo = new TaskRepository();
+
+        println(Textos.Opcoes);
+        int escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
 
         do {
-            switch (escolha){
+            try {
+                switch (escolha) {
+                    // Adicionar nova Task
+                    case 1:
+                        OpcoesDaCase.adicionarTask(repo, sc);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
-                //Adicionar nova Task
-                case 1:
-                    OpcoesDaCase.adicionarTask(lista, sc);
-                    println(Textos.Opcoes);
-                    escolha = sc.nextInt();
-                    break;
+                    // Atualizar uma Task
+                    case 2:
+                        OpcoesDaCase.atualizarTask(repo, sc);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
-                //Atualizar uma Task
-                case 2:
-                    OpcoesDaCase.atualizarTask(lista, sc);
-                    println(Textos.Opcoes);
-                    escolha = sc.nextInt();
-                    break;
-                    
-                //Apagar uma Task
-                case 3:
-                    OpcoesDaCase.removerTask(lista, sc);
-                    println(Textos.Opcoes);
-                    escolha = sc.nextInt();
-                    break;
+                    // Apagar uma Task
+                    case 3:
+                        OpcoesDaCase.removerTask(repo, sc);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
-                //Listar todas as Task
-                case 4:
-                    println(lista);
-                    println(Textos.Opcoes);
-                    escolha = sc.nextInt();
-                    break;
+                    // Listar todas as Tasks
+                    case 4:
+                        OpcoesDaCase.listarTodas(repo);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
-                //Listar todas as Task prontas
-                case 5:
-                    OpcoesDaCase.listarProntas(lista);
-                    println(Textos.Opcoes);
-                    escolha = sc.nextInt();
-                    break;
+                    // Listar todas as Tasks prontas
+                    case 5:
+                        OpcoesDaCase.listarProntas(repo);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
-                //Listar todas as Task em progresso
-                case 6:
-                    OpcoesDaCase.listarFazendo(lista);
-                    println(Textos.Opcoes);
-                    escolha = sc.nextInt();
-                    break;
+                    // Listar todas as Tasks em progresso
+                    case 6:
+                        OpcoesDaCase.listarFazendo(repo);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
-                default:
-                    println(Textos.Padrao);
+                    // Mostrar estatísticas
+                    case 7:
+                        OpcoesDaCase.mostrarEstatisticas(repo);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                        break;
 
+                    case 0:
+                        println("Encerrando programa...");
+                        break;
+
+                    default:
+                        println(Textos.Padrao);
+                        println(Textos.Opcoes);
+                        escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao processar operação: " + e.getMessage());
+                println("Tente novamente.");
+                println(Textos.Opcoes);
+                escolha = InputValidator.lerOpcaoSegura(sc, 0, 7);
             }
         } while (escolha != 0);
 
-        JsonManager.salvarEmJson(lista);
+        // Salva apenas se houve modificações usando o método do Repository
+        if (repo.foiModificado()) {
+            try {
+                repo.salvar();
+            } catch (Exception e) {
+                System.err.println("ERRO CRÍTICO: Não foi possível salvar as alterações!");
+                System.err.println("Detalhes: " + e.getMessage());
+                println("\nDeseja tentar salvar novamente? (S/N)");
+                sc.nextLine();
+                String resposta = sc.nextLine().trim().toUpperCase();
 
-    sc.close();
+                if (resposta.equals("S")) {
+                    repo.salvarSeModificado();
+                }
+            }
+        } else {
+            println("Nenhuma alteração foi feita.");
+        }
+
+    } catch (Exception e) {
+        System.err.println("Erro fatal na aplicação: " + e.getMessage());
+        e.printStackTrace();
+    } finally {
+        sc.close();
+        println("Programa encerrado.");
     }
-
+}
