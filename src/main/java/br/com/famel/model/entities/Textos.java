@@ -1,4 +1,4 @@
-package br.com.famel.model;
+package br.com.famel.model.entities;
 
 public class Textos {
 

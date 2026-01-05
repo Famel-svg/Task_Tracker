@@ -2,6 +2,7 @@ package br.com.famel.model.entities;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class Task {
     private int id;
@@ -64,6 +65,18 @@ public class Task {
     }
 
     /**
+     * Construtor privado para o Builder
+     */
+    private Task(Builder builder) {
+        this.nome = builder.nome;
+        this.descricao = builder.descricao;
+        this.status = builder.status;
+        this.dataDeCriacao = builder.dataDeCriacao;
+        this.dataDeFinalizacao = builder.dataDeFinalizacao;
+        gerarId();
+    }
+
+    /**
      * Gera um novo ID único para a task
      */
     public void gerarId() {
@@ -93,7 +106,17 @@ public class Task {
         return dataDeCriacao;
     }
 
-    public LocalDate getDataDeFinalizacao() {
+    /**
+     * Retorna a data de finalização usando Optional
+     */
+    public Optional<LocalDate> getDataDeFinalizacao() {
+        return Optional.ofNullable(dataDeFinalizacao);
+    }
+
+    /**
+     * Retorna a data de finalização (versão sem Optional para compatibilidade)
+     */
+    public LocalDate getDataDeFinalizacaoRaw() {
         return dataDeFinalizacao;
     }
 
@@ -115,18 +138,15 @@ public class Task {
 
     /**
      * Define o status usando String (para compatibilidade com código antigo)
-     * Aceita tanto código ("1", "2", "3") quanto descrição ("Para fazer", etc)
      */
     public void setStatus(String statusStr) {
         try {
             this.status = Status.fromString(statusStr);
 
-            // Se mudou para Pronta e não tinha data de finalização, define agora
             if (this.status == Status.PRONTA && this.dataDeFinalizacao == null) {
                 this.dataDeFinalizacao = LocalDate.now();
             }
 
-            // Se mudou de Pronta para outro status, remove data de finalização
             if (this.status != Status.PRONTA && this.dataDeFinalizacao != null) {
                 this.dataDeFinalizacao = null;
             }
@@ -161,44 +181,26 @@ public class Task {
 
     // ========== MÉTODOS DE CONVENIÊNCIA ==========
 
-    /**
-     * Marca a task como pronta
-     */
     public void marcarComoPronta() {
         setStatus(Status.PRONTA);
     }
 
-    /**
-     * Marca a task como em progresso
-     */
     public void marcarComoEmProgresso() {
         setStatus(Status.FAZENDO);
     }
 
-    /**
-     * Marca a task como pendente
-     */
     public void marcarComoPendente() {
         setStatus(Status.PARA_FAZER);
     }
 
-    /**
-     * Verifica se a task está pronta
-     */
     public boolean isPronta() {
         return status == Status.PRONTA;
     }
 
-    /**
-     * Verifica se a task está em progresso
-     */
     public boolean isEmProgresso() {
         return status == Status.FAZENDO;
     }
 
-    /**
-     * Verifica se a task está pendente
-     */
     public boolean isPendente() {
         return status == Status.PARA_FAZER;
     }
@@ -214,22 +216,101 @@ public class Task {
         sb.append(String.format("║ Status: %-30s ║\n", status.getDescricao()));
         sb.append(String.format("║ Criada em: %-27s ║\n", dataDeCriacao));
 
-        if (dataDeFinalizacao != null) {
-            sb.append(String.format("║ Finalizada em: %-23s ║\n", dataDeFinalizacao));
-        } else {
-            sb.append("║ Finalizada em: Não finalizada        ║\n");
-        }
+        // Usando Optional
+        getDataDeFinalizacao().ifPresentOrElse(
+                data -> sb.append(String.format("║ Finalizada em: %-23s ║\n", data)),
+                () -> sb.append("║ Finalizada em: Não finalizada        ║\n")
+        );
 
         sb.append("╚════════════════════════════════════════╝");
 
         return sb.toString();
     }
 
-    /**
-     * Versão simplificada do toString para listagens
-     */
     public String toStringSimples() {
         return String.format("ID: %d | %s | Status: %s",
                 id, nome, status.getDescricao());
+    }
+
+    // ========== BUILDER PATTERN ==========
+
+    /**
+     * Retorna um novo Builder para criar Task
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder Pattern para criar Tasks de forma fluente
+     */
+    public static class Builder {
+        private String nome;
+        private String descricao;
+        private Status status = Status.PARA_FAZER; // Status padrão
+        private LocalDate dataDeCriacao = LocalDate.now(); // Data atual por padrão
+        private LocalDate dataDeFinalizacao;
+
+        public Builder nome(String nome) {
+            this.nome = nome;
+            return this;
+        }
+
+        public Builder descricao(String descricao) {
+            this.descricao = descricao;
+            return this;
+        }
+
+        public Builder status(Status status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder dataDeCriacao(LocalDate data) {
+            this.dataDeCriacao = data;
+            return this;
+        }
+
+        public Builder dataDeFinalizacao(LocalDate data) {
+            this.dataDeFinalizacao = data;
+            return this;
+        }
+
+        /**
+         * Cria a task marcando como pronta
+         */
+        public Builder pronta() {
+            this.status = Status.PRONTA;
+            this.dataDeFinalizacao = LocalDate.now();
+            return this;
+        }
+
+        /**
+         * Cria a task marcando como em progresso
+         */
+        public Builder emProgresso() {
+            this.status = Status.FAZENDO;
+            return this;
+        }
+
+        /**
+         * Constrói a Task
+         */
+        public Task build() {
+            // Validações
+            if (nome == null || nome.trim().isEmpty()) {
+                throw new IllegalStateException("Nome é obrigatório");
+            }
+            if (descricao == null || descricao.trim().isEmpty()) {
+                throw new IllegalStateException("Descrição é obrigatória");
+            }
+
+            // Lógica de validação de status
+            if (status == Status.PRONTA && dataDeFinalizacao == null) {
+                dataDeFinalizacao = LocalDate.now();
+            }
+
+            return new Task(this);
+        }
     }
 }

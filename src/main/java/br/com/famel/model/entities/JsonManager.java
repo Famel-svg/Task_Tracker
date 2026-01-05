@@ -1,63 +1,89 @@
 package br.com.famel.model.entities;
 
+import br.com.famel.model.util.Logger;
 import module java.base;
-import static java.lang.IO.println;
 
 public class JsonManager {
 
     void main() throws IOException {
-        println("Testando leitura e escrita de JSON...");
+        Logger.info("Testando leitura e escrita de JSON...");
         List<Task> lista = new ArrayList<>();
         lista = lerDoJson();
-        println("Tasks carregadas: " + lista.size());
+        Logger.info("Tasks carregadas: " + lista.size());
         salvarEmJson(lista);
-        println("JSON salvo com sucesso.");
+        Logger.success("JSON salvo com sucesso");
     }
 
     public static List<Task> lerDoJson() throws IOException {
         List<Task> lista = new ArrayList<>();
-
-        // Verifica se o arquivo existe
         File file = new File("tasks.json");
+
         if (!file.exists()) {
-            // Se não existe, retorna lista vazia
+            Logger.info("Arquivo tasks.json não encontrado, será criado ao salvar");
             return lista;
         }
 
+        Logger.debug("Lendo arquivo tasks.json...");
         StringBuilder json = new StringBuilder();
+
         try (BufferedReader reader = new BufferedReader(new FileReader("tasks.json"))) {
             String linha;
             while ((linha = reader.readLine()) != null) {
                 json.append(linha.trim());
             }
+        } catch (IOException e) {
+            Logger.error("Erro ao ler arquivo JSON", e);
+            throw e;
         }
 
         String conteudo = json.toString().trim();
 
-        // Se o arquivo está vazio ou só tem [], retorna lista vazia
         if (conteudo.isEmpty() || conteudo.equals("[]")) {
+            Logger.info("Arquivo JSON vazio");
             return lista;
         }
 
-        // Remove [ ]
-        conteudo = conteudo.substring(1, conteudo.length() - 1);
+        try {
+            conteudo = conteudo.substring(1, conteudo.length() - 1);
+            String[] blocos = conteudo.split("\\},\\s*\\{");
 
-        // Separa os objetos
-        String[] blocos = conteudo.split("\\},\\s*\\{");
+            Logger.debug("Processando " + blocos.length + " task(s) do JSON");
 
-        for (String bloco : blocos) {
-            bloco = bloco.replace("{", "").replace("}", "");
+            for (String bloco : blocos) {
+                try {
+                    Task task = parsearTask(bloco);
+                    if (task != null) {
+                        lista.add(task);
+                    }
+                } catch (Exception e) {
+                    Logger.warn("Erro ao processar uma task, pulando para próxima");
+                }
+            }
 
-            int id = 0;
-            String nome = "";
-            String descricao = "";
-            String status = "";
-            String dataCriacao = "";
-            String dataFinalizacao = "";
+            Logger.success("Total de " + lista.size() + " task(s) carregadas");
 
-            String[] linhas = bloco.split(",(?=\\s*\"[^\"]+\"\\s*:)"); // Split melhorado
+        } catch (Exception e) {
+            Logger.error("Erro ao processar JSON", e);
+            throw new IOException("Erro ao processar JSON", e);
+        }
 
-            for (String linha : linhas) {
+        return lista;
+    }
+
+    private static Task parsearTask(String bloco) {
+        bloco = bloco.replace("{", "").replace("}", "");
+
+        int id = 0;
+        String nome = "";
+        String descricao = "";
+        String status = "";
+        String dataCriacao = "";
+        String dataFinalizacao = null;
+
+        String[] linhas = bloco.split(",(?=\\s*\"[^\"]+\"\\s*:)");
+
+        for (String linha : linhas) {
+            try {
                 String[] partes = linha.split(":", 2);
                 if (partes.length < 2) continue;
 
@@ -66,7 +92,12 @@ public class JsonManager {
 
                 switch (campo) {
                     case "Id":
-                        id = Integer.parseInt(valor);
+                        try {
+                            id = Integer.parseInt(valor);
+                        } catch (NumberFormatException e) {
+                            Logger.warn("ID inválido encontrado: " + valor);
+                            return null;
+                        }
                         break;
                     case "Nome":
                         nome = valor;
@@ -83,21 +114,25 @@ public class JsonManager {
                     case "DataDeFinalizacao":
                         if (!valor.equals("null") && !valor.isEmpty()) {
                             dataFinalizacao = valor;
-                        } else {
-                            dataFinalizacao = null;
                         }
                         break;
                 }
-            }
-
-            // Só adiciona se não for uma task com dados null
-            if (!nome.equals("null") && id > 0) {
-                Task task = new Task(id, nome, descricao, status, dataCriacao, dataFinalizacao);
-                lista.add(task);
+            } catch (Exception e) {
+                Logger.warn("Erro ao processar campo: " + linha);
             }
         }
 
-        return lista;
+        if (nome.equals("null") || nome.isEmpty() || id <= 0) {
+            Logger.warn("Task com dados inválidos (ID: " + id + "), ignorando");
+            return null;
+        }
+
+        try {
+            return new Task(id, nome, descricao, status, dataCriacao, dataFinalizacao);
+        } catch (Exception e) {
+            Logger.error("Erro ao criar Task", e);
+            return null;
+        }
     }
 
     private static String indent(int nivel) {
@@ -105,71 +140,101 @@ public class JsonManager {
     }
 
     public static void salvarEmJson(List<Task> lista) throws IOException {
+        if (lista == null) {
+            Logger.error("Lista de tasks não pode ser null");
+            throw new IllegalArgumentException("Lista não pode ser null");
+        }
+
+        Logger.debug("Construindo JSON com " + lista.size() + " task(s)");
         StringBuilder builder = new StringBuilder();
 
-        builder.append("[");
+        try {
+            builder.append("[");
 
-        for (int i = 0; i < lista.size(); i++) {
-            Task task = lista.get(i);
-            builder.append("\n");
-            builder.append(indent(1));
-            builder.append("{\n");
+            for (int i = 0; i < lista.size(); i++) {
+                Task task = lista.get(i);
 
-            // Task ID
-            builder.append(indent(2));
-            builder.append("\"Id\": ");
-            builder.append(task.getId());
-            builder.append(",\n");
+                if (task == null) {
+                    Logger.warn("Task null na posição " + i + ", ignorando");
+                    continue;
+                }
 
-            // Task Nome
-            builder.append(indent(2));
-            builder.append("\"Nome\": \"");
-            builder.append(task.getNome() != null ? task.getNome() : "");
-            builder.append("\",\n");
+                builder.append("\n");
+                builder.append(indent(1));
+                builder.append("{\n");
 
-            // Task Descricao
-            builder.append(indent(2));
-            builder.append("\"Descricao\": \"");
-            builder.append(task.getDescricao() != null ? task.getDescricao() : "");
-            builder.append("\",\n");
+                builder.append(indent(2));
+                builder.append("\"Id\": ");
+                builder.append(task.getId());
+                builder.append(",\n");
 
-            // Task Status
-            builder.append(indent(2));
-            builder.append("\"Status\": \"");
-            builder.append(task.getStatus() != null ? task.getStatus() : "");
-            builder.append("\",\n");
+                builder.append(indent(2));
+                builder.append("\"Nome\": \"");
+                builder.append(escaparString(task.getNome()));
+                builder.append("\",\n");
 
-            // Task Data de Criacao
-            builder.append(indent(2));
-            builder.append("\"DataDeCriacao\": \"");
-            builder.append(task.getDataDeCriacao() != null ? task.getDataDeCriacao().toString() : "");
-            builder.append("\",\n");
+                builder.append(indent(2));
+                builder.append("\"Descricao\": \"");
+                builder.append(escaparString(task.getDescricao()));
+                builder.append("\",\n");
 
-            // Task Data de Finalizacao
-            builder.append(indent(2));
-            builder.append("\"DataDeFinalizacao\": ");
-            if (task.getDataDeFinalizacao() != null) {
-                builder.append("\"");
-                builder.append(task.getDataDeFinalizacao().toString());
-                builder.append("\"");
-            } else {
-                builder.append("null");
+                builder.append(indent(2));
+                builder.append("\"Status\": \"");
+                builder.append(task.getStatus().getDescricao());
+                builder.append("\",\n");
+
+                builder.append(indent(2));
+                builder.append("\"DataDeCriacao\": \"");
+                builder.append(task.getDataDeCriacao().toString());
+                builder.append("\",\n");
+
+                builder.append(indent(2));
+                builder.append("\"DataDeFinalizacao\": ");
+
+                // Usando Optional
+                task.getDataDeFinalizacao().ifPresentOrElse(
+                        data -> {
+                            builder.append("\"");
+                            builder.append(data.toString());
+                            builder.append("\"");
+                        },
+                        () -> builder.append("null")
+                );
+
+                builder.append("\n");
+                builder.append(indent(1));
+                builder.append("}");
+
+                if (i < lista.size() - 1) {
+                    builder.append(",");
+                }
             }
+
             builder.append("\n");
+            builder.append("]");
 
-            builder.append(indent(1));
-            builder.append("}");
-
-            if (i < lista.size() - 1) {
-                builder.append(",");
-            }
+        } catch (Exception e) {
+            Logger.error("Erro ao construir JSON", e);
+            throw new IOException("Erro ao construir JSON", e);
         }
 
-        builder.append("\n");
-        builder.append("]");
-
+        Logger.debug("Escrevendo JSON no arquivo...");
         try (FileWriter writer = new FileWriter("tasks.json")) {
             writer.write(builder.toString());
+            writer.flush();
+            Logger.success("Arquivo tasks.json salvo com sucesso");
+        } catch (IOException e) {
+            Logger.error("Erro ao escrever arquivo tasks.json", e);
+            throw e;
         }
+    }
+
+    private static String escaparString(String str) {
+        if (str == null) return "";
+        return str.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
