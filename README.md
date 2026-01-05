@@ -136,21 +136,3 @@ O arquivo `tasks.json` é um array de objetos. Exemplo:
 3. Faça commits claros: `git commit -m "Descrição da mudança"`
 4. Envie: `git push origin feat/nome-da-caracteristica`
 5. Abra um Pull Request descrevendo alterações e testes.
-
-Dicas:
-- Abra uma issue para propostas maiores.
-- Inclua testes quando possível.
-
----
-
-## 📄 Licença
-Adicione um arquivo `LICENSE` (ex.: MIT) para definir os termos. Atualmente, inclua a licença desejada no repositório ao publicar.
-
----
-
-## 📬 Contato
-Se quiser, eu posso:
-- Gerar a versão em inglês do README.
-- Adaptar exemplos para uma linguagem específica (Node.js / Python / Go).
-- Criar um `tasks.example.json`.
-- Gerar um esqueleto inicial do CLI (arquivo executável) na linguagem que preferir.
