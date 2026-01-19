@@ -1,24 +1,24 @@
-package br.com.famel.model.entities;
+package br.com.famel.model.ressources;
 
 public class Textos {
 
     public static String BemVindo =
             "╔═══════════════════════════════════════╗\n"  +
-                    "║     BEM VINDO AO TASK TRACKER        ║\n" +
+                    "║      BEM VINDO AO TASK TRACKER        ║\n" +
                     "╚═══════════════════════════════════════╝\n";
 
     public static String Opcoes =
             "\n╔═══════════════════════════════════════╗\n" +
-                    "║            MENU PRINCIPAL            ║\n" +
+                    "║            MENU PRINCIPAL             ║\n" +
                     "╠═══════════════════════════════════════╣\n" +
-                    "║ (1) Adicionar nova Task              ║\n" +
-                    "║ (2) Atualizar uma Task               ║\n" +
-                    "║ (3) Apagar uma Task                  ║\n" +
-                    "║ (4) Listar todas as Tasks            ║\n" +
-                    "║ (5) Listar Tasks prontas             ║\n" +
-                    "║ (6) Listar Tasks em progresso        ║\n" +
-                    "║ (7) Ver estatísticas                 ║\n" +
-                    "║ (0) Sair e salvar                    ║\n" +
+                    "║ (1) Adicionar nova Task               ║\n" +
+                    "║ (2) Atualizar uma Task                ║\n" +
+                    "║ (3) Apagar uma Task                   ║\n" +
+                    "║ (4) Listar todas as Tasks             ║\n" +
+                    "║ (5) Listar Tasks prontas              ║\n" +
+                    "║ (6) Listar Tasks em progresso         ║\n" +
+                    "║ (7) Ver estatísticas                  ║\n" +
+                    "║ (0) Sair e salvar                     ║\n" +
                     "╚═══════════════════════════════════════╝";
 
     public static String Padrao =

@@ -1,11 +1,14 @@
 package br.com.famel.model.entities;
 
-import br.com.famel.model.Textos;
-
+import br.com.famel.model.ressources.Textos;
 import static java.lang.IO.println;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 public class OpcoesDaCase {
 
@@ -14,30 +17,19 @@ public class OpcoesDaCase {
      */
     public static void adicionarTask(TaskRepository repo, Scanner sc) {
         try {
-            Task task = new Task();
-            task.gerarId();
+            Task task = Task.builder()
+                    .nome(InputValidator.lerTextoNaoVazio(sc, "Nome da Task: "))
+                    .descricao(InputValidator.lerTextoNaoVazio(sc, "Descrição da Task: "))
+                    .status(InputValidator.lerStatusSeguro(sc))
+                    .build();
 
-            // Pega o nome da Task com validação
-            String nome = InputValidator.lerTextoNaoVazio(sc, "Nome da Task: ");
-            task.setNome(nome);
-
-            // Pega a descrição da Task com validação
-            String descricao = InputValidator.lerTextoNaoVazio(sc, "Descrição da Task: ");
-            task.setDescricao(descricao);
-
-            // Pega o status da Task com validação (retorna Status enum)
-            Status status = InputValidator.lerStatusSeguro(sc);
-            task.setStatus(status);
-
-            // Pega a data atual
-            task.setDataDeCriacao(java.time.LocalDate.now());
-
-            // Adiciona no repositório
-            if (repo.adicionar(task)) {
-                println(Textos.case1);
-            } else {
-                System.err.println("Erro ao adicionar task no repositório.");
-            }
+            // Verifica se adicionou com sucesso usando Optional
+            Optional.of(repo.adicionar(task))
+                    .filter(Boolean::booleanValue)
+                    .ifPresentOrElse(
+                            sucesso -> println(Textos.case1),
+                            () -> System.err.println("Erro ao adicionar task no repositório.")
+                    );
 
         } catch (Exception e) {
             System.err.println("Erro ao adicionar task: " + e.getMessage());
@@ -46,8 +38,7 @@ public class OpcoesDaCase {
     }
 
     /**
-     * Atualiza uma task existente usando o Repository
-     * @return true se atualizou, false caso contrário
+     * Atualiza uma task existente usando Map funcional para opções
      */
     public static boolean atualizarTask(TaskRepository repo, Scanner sc) {
         if (repo.isEmpty()) {
@@ -56,61 +47,10 @@ public class OpcoesDaCase {
         }
 
         try {
-            // Mostra tasks disponíveis
-            println("\n=== Tasks disponíveis ===");
-            List<Task> tasks = repo.listarTodas();
-            for (Task t : tasks) {
-                println(t.toStringSimples());
-            }
-            println();
-
-            // Lê o ID com validação
+            mostrarTasksDisponiveis(repo);
             int idEscolhido = InputValidator.lerIdSeguro(sc);
 
-            // Busca a task usando Optional
-            Optional<Task> taskOpt = repo.buscarPorId(idEscolhido);
-
-            if (taskOpt.isEmpty()) {
-                System.err.println("ID não encontrado. Digite um ID válido da lista acima.");
-                return false;
-            }
-
-            Task task = taskOpt.get();
-
-            // Mostra dados atuais
-            println("\nDados atuais da task:");
-            println(task);
-
-            // Escolhe o que atualizar
-            println(Textos.AtualizarOpcoes);
-            int opcaoAtualizacao = InputValidator.lerOpcaoSegura(sc, 1, 3);
-
-            boolean sucesso = false;
-            switch (opcaoAtualizacao) {
-                case 1:
-                    String novoNome = InputValidator.lerTextoNaoVazio(sc, "Digite o novo nome da Task: ");
-                    sucesso = repo.atualizarNome(idEscolhido, novoNome);
-                    break;
-
-                case 2:
-                    String novaDescricao = InputValidator.lerTextoNaoVazio(sc, "Digite a nova descrição da Task: ");
-                    sucesso = repo.atualizarDescricao(idEscolhido, novaDescricao);
-                    break;
-
-                case 3:
-                    Status novoStatus = InputValidator.lerStatusSeguro(sc);
-                    sucesso = repo.atualizarStatus(idEscolhido, novoStatus);
-                    break;
-
-                default:
-                    System.err.println("Opção inválida.");
-                    return false;
-            }
-
-            if (sucesso) {
-                println(Textos.case2);
-            }
-            return sucesso;
+            return buscarEAtualizarTask(repo, sc, idEscolhido);
 
         } catch (Exception e) {
             System.err.println("Erro ao atualizar task: " + e.getMessage());
@@ -119,8 +59,60 @@ public class OpcoesDaCase {
     }
 
     /**
+     * Busca task e executa atualização
+     */
+    private static boolean buscarEAtualizarTask(TaskRepository repo, Scanner sc, int id) {
+        return repo.buscarPorId(id)
+                .map(task -> {
+                    println("\nDados atuais da task:");
+                    println(task);
+                    return executarAtualizacao(repo, sc, id);
+                })
+                .orElseGet(() -> {
+                    System.err.println("ID não encontrado. Digite um ID válido da lista acima.");
+                    return false;
+                });
+    }
+
+    /**
+     * Executa atualização usando Map de estratégias
+     */
+    private static boolean executarAtualizacao(TaskRepository repo, Scanner sc, int id) {
+        // Map de estratégias de atualização
+        Map<Integer, BiFunction<TaskRepository, Integer, Boolean>> estrategias = Map.of(
+                1, (r, taskId) -> {
+                    String novoNome = InputValidator.lerTextoNaoVazio(sc, "Digite o novo nome da Task: ");
+                    return r.atualizarNome(taskId, novoNome);
+                },
+                2, (r, taskId) -> {
+                    String novaDescricao = InputValidator.lerTextoNaoVazio(sc, "Digite a nova descrição da Task: ");
+                    return r.atualizarDescricao(taskId, novaDescricao);
+                },
+                3, (r, taskId) -> {
+                    Status novoStatus = InputValidator.lerStatusSeguro(sc);
+                    return r.atualizarStatus(taskId, novoStatus);
+                }
+        );
+
+        println(Textos.AtualizarOpcoes);
+        int opcaoAtualizacao = InputValidator.lerOpcaoSegura(sc, 1, 3);
+
+        return Optional.ofNullable(estrategias.get(opcaoAtualizacao))
+                .map(estrategia -> {
+                    boolean sucesso = estrategia.apply(repo, id);
+                    if (sucesso) {
+                        println(Textos.case2);
+                    }
+                    return sucesso;
+                })
+                .orElseGet(() -> {
+                    System.err.println("Opção inválida.");
+                    return false;
+                });
+    }
+
+    /**
      * Remove uma task do repositório
-     * @return true se removeu, false caso contrário
      */
     public static boolean removerTask(TaskRepository repo, Scanner sc) {
         if (repo.isEmpty()) {
@@ -129,44 +121,10 @@ public class OpcoesDaCase {
         }
 
         try {
-            println("\n=== Tasks disponíveis ===");
-            List<Task> tasks = repo.listarTodas();
-            for (Task t : tasks) {
-                println(t.toStringSimples());
-            }
-            println();
-
-            // Lê o ID com validação
+            mostrarTasksDisponiveis(repo);
             int idEscolhido = InputValidator.lerIdSeguro(sc);
 
-            // Verifica se existe
-            Optional<Task> taskOpt = repo.buscarPorId(idEscolhido);
-            if (taskOpt.isEmpty()) {
-                System.err.println("ID não encontrado. Digite um ID válido da lista acima.");
-                return false;
-            }
-
-            // Mostra a task que será removida
-            println("\nTask que será removida:");
-            println(taskOpt.get());
-
-            // Confirmação
-            println("\nTem certeza que deseja remover esta task? (S/N)");
-            String confirmacao = sc.nextLine().trim().toUpperCase();
-
-            if (!confirmacao.equals("S")) {
-                println("Remoção cancelada.");
-                return false;
-            }
-
-            // Remove usando o repositório
-            if (repo.remover(idEscolhido)) {
-                println(Textos.case3);
-                return true;
-            } else {
-                System.err.println("Erro ao remover a task.");
-                return false;
-            }
+            return confirmarERemover(repo, sc, idEscolhido);
 
         } catch (Exception e) {
             System.err.println("Erro ao remover task: " + e.getMessage());
@@ -175,57 +133,114 @@ public class OpcoesDaCase {
     }
 
     /**
-     * Lista todas as tasks prontas usando o Repository
+     * Confirma e remove a task
+     */
+    private static boolean confirmarERemover(TaskRepository repo, Scanner sc, int id) {
+        return repo.buscarPorId(id)
+                .map(task -> {
+                    println("\nTask que será removida:");
+                    println(task);
+
+                    return confirmarRemocao(sc)
+                            .filter(Boolean::booleanValue)
+                            .map(confirmar -> {
+                                boolean removido = repo.remover(id);
+                                if (removido) {
+                                    println(Textos.case3);
+                                } else {
+                                    System.err.println("Erro ao remover a task.");
+                                }
+                                return removido;
+                            })
+                            .orElseGet(() -> {
+                                println("Remoção cancelada.");
+                                return false;
+                            });
+                })
+                .orElseGet(() -> {
+                    System.err.println("ID não encontrado. Digite um ID válido da lista acima.");
+                    return false;
+                });
+    }
+
+    /**
+     * Confirma remoção usando Optional
+     */
+    private static Optional<Boolean> confirmarRemocao(Scanner sc) {
+        println("\nTem certeza que deseja remover esta task? (S/N)");
+        String confirmacao = sc.nextLine().trim().toUpperCase();
+        return Optional.of(confirmacao.equals("S"));
+    }
+
+    /**
+     * Mostra tasks disponíveis
+     */
+    private static void mostrarTasksDisponiveis(TaskRepository repo) {
+        println("\n=== Tasks disponíveis ===");
+        repo.listarTodas().forEach(t -> println(t.toStringSimples()));
+        println();
+    }
+
+    /**
+     * Lista tasks com formatação usando Consumer
+     */
+    private static void listarComFormatacao(
+            TaskRepository repo,
+            String titulo,
+            List<Task> tasks,
+            Consumer<Task> exibir
+    ) {
+        println("\n╔════════════════════════════════════════╗");
+        println(String.format("║  %-36s  ║", titulo));
+        println("╚════════════════════════════════════════╝");
+
+        Optional.of(tasks)
+                .filter(lista -> !lista.isEmpty())
+                .ifPresentOrElse(
+                        lista -> lista.forEach(t -> {
+                            exibir.accept(t);
+                            println();
+                        }),
+                        () -> println("Nenhuma task encontrada.")
+                );
+    }
+
+    /**
+     * Lista todas as tasks prontas
      */
     public static void listarProntas(TaskRepository repo) {
         try {
             List<Task> prontas = repo.listarProntas();
-
-            println("\n╔════════════════════════════════════════╗");
-            println("║        TASKS PRONTAS (" + prontas.size() + ")              ║");
-            println("╚════════════════════════════════════════╝");
-
-            if (prontas.isEmpty()) {
-                println("Nenhuma task pronta.");
-            } else {
-                for (Task t : prontas) {
-                    println(t);
-                    println();
-                }
-            }
-
+            listarComFormatacao(
+                    repo,
+                    "TASKS PRONTAS (" + prontas.size() + ")",
+                    prontas,
+                    task -> println(task)
+            );
         } catch (Exception e) {
             System.err.println("Erro ao listar tasks prontas: " + e.getMessage());
         }
     }
 
     /**
-     * Lista todas as tasks em progresso usando o Repository
+     * Lista todas as tasks em progresso
      */
     public static void listarFazendo(TaskRepository repo) {
         try {
             List<Task> emProgresso = repo.listarEmProgresso();
-
-            println("\n╔════════════════════════════════════════╗");
-            println("║     TASKS EM PROGRESSO (" + emProgresso.size() + ")        ║");
-            println("╚════════════════════════════════════════╝");
-
-            if (emProgresso.isEmpty()) {
-                println("Nenhuma task sendo feita.");
-            } else {
-                for (Task t : emProgresso) {
-                    println(t);
-                    println();
-                }
-            }
-
+            listarComFormatacao(
+                    repo,
+                    "TASKS EM PROGRESSO (" + emProgresso.size() + ")",
+                    emProgresso,
+                    task -> println(task)
+            );
         } catch (Exception e) {
             System.err.println("Erro ao listar tasks em progresso: " + e.getMessage());
         }
     }
 
     /**
-     * Lista todas as tasks do repositório
+     * Lista todas as tasks
      */
     public static void listarTodas(TaskRepository repo) {
         try {
@@ -235,15 +250,12 @@ public class OpcoesDaCase {
             }
 
             List<Task> tasks = repo.listarTodas();
-
-            println("\n╔════════════════════════════════════════╗");
-            println("║       TODAS AS TASKS (" + tasks.size() + ")            ║");
-            println("╚════════════════════════════════════════╝\n");
-
-            for (Task t : tasks) {
-                println(t);
-                println();
-            }
+            listarComFormatacao(
+                    repo,
+                    "TODAS AS TASKS (" + tasks.size() + ")",
+                    tasks,
+                    task -> println(task)
+            );
 
         } catch (Exception e) {
             System.err.println("Erro ao listar tasks: " + e.getMessage());

@@ -1,144 +1,124 @@
 package br.com.famel.model.entities;
 
 import br.com.famel.model.util.Logger;
-import module java.base;
+import java.io.*;
+import java.nio.file.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class JsonManager {
 
-    void main() throws IOException {
-        Logger.info("Testando leitura e escrita de JSON...");
-        List<Task> lista = new ArrayList<>();
-        lista = lerDoJson();
-        Logger.info("Tasks carregadas: " + lista.size());
-        salvarEmJson(lista);
-        Logger.success("JSON salvo com sucesso");
-    }
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
+    /**
+     * Lê tasks do JSON usando Streams e lambdas
+     */
     public static List<Task> lerDoJson() throws IOException {
-        List<Task> lista = new ArrayList<>();
         File file = new File("tasks.json");
 
         if (!file.exists()) {
             Logger.info("Arquivo tasks.json não encontrado, será criado ao salvar");
-            return lista;
+            return new ArrayList<>();
         }
 
         Logger.debug("Lendo arquivo tasks.json...");
-        StringBuilder json = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader("tasks.json"))) {
-            String linha;
-            while ((linha = reader.readLine()) != null) {
-                json.append(linha.trim());
-            }
-        } catch (IOException e) {
-            Logger.error("Erro ao ler arquivo JSON", e);
-            throw e;
-        }
-
-        String conteudo = json.toString().trim();
-
-        if (conteudo.isEmpty() || conteudo.equals("[]")) {
-            Logger.info("Arquivo JSON vazio");
-            return lista;
-        }
 
         try {
-            conteudo = conteudo.substring(1, conteudo.length() - 1);
-            String[] blocos = conteudo.split("\\},\\s*\\{");
+            // Lê todo o conteúdo usando Files.readString (Java 11+)
+            String conteudo = Files.readString(Path.of("tasks.json")).trim();
 
-            Logger.debug("Processando " + blocos.length + " task(s) do JSON");
-
-            for (String bloco : blocos) {
-                try {
-                    Task task = parsearTask(bloco);
-                    if (task != null) {
-                        lista.add(task);
-                    }
-                } catch (Exception e) {
-                    Logger.warn("Erro ao processar uma task, pulando para próxima");
-                }
+            if (conteudo.isEmpty() || conteudo.equals("[]")) {
+                Logger.info("Arquivo JSON vazio");
+                return new ArrayList<>();
             }
 
-            Logger.success("Total de " + lista.size() + " task(s) carregadas");
+            // Remove colchetes e divide em blocos de tasks
+            List<Task> tasks = Arrays.stream(
+                            conteudo.substring(1, conteudo.length() - 1)
+                                    .split("\\},\\s*\\{")
+                    )
+                    .map(JsonManager::parsearTask)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            Logger.success("Total de " + tasks.size() + " task(s) carregadas");
+            return tasks;
 
         } catch (Exception e) {
             Logger.error("Erro ao processar JSON", e);
             throw new IOException("Erro ao processar JSON", e);
         }
-
-        return lista;
     }
 
+    /**
+     * Parseia uma task usando Map funcional para handlers
+     */
     private static Task parsearTask(String bloco) {
         bloco = bloco.replace("{", "").replace("}", "");
 
-        int id = 0;
-        String nome = "";
-        String descricao = "";
-        String status = "";
-        String dataCriacao = "";
-        String dataFinalizacao = null;
+        // Holders mutáveis para captura em lambdas
+        final int[] id = {0};
+        final String[] nome = {""};
+        final String[] descricao = {""};
+        final String[] status = {""};
+        final String[] dataCriacao = {""};
+        final String[] dataFinalizacao = {null};
 
-        String[] linhas = bloco.split(",(?=\\s*\"[^\"]+\"\\s*:)");
-
-        for (String linha : linhas) {
-            try {
-                String[] partes = linha.split(":", 2);
-                if (partes.length < 2) continue;
-
-                String campo = partes[0].replace("\"", "").trim();
-                String valor = partes[1].replace("\"", "").trim();
-
-                switch (campo) {
-                    case "Id":
-                        try {
-                            id = Integer.parseInt(valor);
-                        } catch (NumberFormatException e) {
-                            Logger.warn("ID inválido encontrado: " + valor);
-                            return null;
-                        }
-                        break;
-                    case "Nome":
-                        nome = valor;
-                        break;
-                    case "Descricao":
-                        descricao = valor;
-                        break;
-                    case "Status":
-                        status = valor;
-                        break;
-                    case "DataDeCriacao":
-                        dataCriacao = valor;
-                        break;
-                    case "DataDeFinalizacao":
-                        if (!valor.equals("null") && !valor.isEmpty()) {
-                            dataFinalizacao = valor;
-                        }
-                        break;
+        // Map de handlers funcionais para cada campo
+        Map<String, BiConsumer<String, String>> fieldHandlers = Map.of(
+                "Id", (campo, valor) -> {
+                    try {
+                        id[0] = Integer.parseInt(valor);
+                    } catch (NumberFormatException e) {
+                        Logger.warn("ID inválido encontrado: " + valor);
+                    }
+                },
+                "Nome", (campo, valor) -> nome[0] = valor,
+                "Descricao", (campo, valor) -> descricao[0] = valor,
+                "Status", (campo, valor) -> status[0] = valor,
+                "DataDeCriacao", (campo, valor) -> dataCriacao[0] = valor,
+                "DataDeFinalizacao", (campo, valor) -> {
+                    if (!valor.equals("null") && !valor.isEmpty()) {
+                        dataFinalizacao[0] = valor;
+                    }
                 }
-            } catch (Exception e) {
-                Logger.warn("Erro ao processar campo: " + linha);
-            }
-        }
+        );
 
-        if (nome.equals("null") || nome.isEmpty() || id <= 0) {
-            Logger.warn("Task com dados inválidos (ID: " + id + "), ignorando");
+        // Processa todas as linhas usando streams
+        Arrays.stream(bloco.split(",(?=\\s*\"[^\"]+\"\\s*:)"))
+                .map(linha -> linha.split(":", 2))
+                .filter(partes -> partes.length >= 2)
+                .forEach(partes -> {
+                    String campo = partes[0].replace("\"", "").trim();
+                    String valor = partes[1].replace("\"", "").trim();
+
+                    fieldHandlers.getOrDefault(
+                            campo,
+                            (c, v) -> Logger.warn("Campo desconhecido: " + c)
+                    ).accept(campo, valor);
+                });
+
+        // Validação
+        if (nome[0].equals("null") || nome[0].isEmpty() || id[0] <= 0) {
+            Logger.warn("Task com dados inválidos (ID: " + id[0] + "), ignorando");
             return null;
         }
 
         try {
-            return new Task(id, nome, descricao, status, dataCriacao, dataFinalizacao);
+            return new Task(id[0], nome[0], descricao[0], status[0],
+                    dataCriacao[0], dataFinalizacao[0]);
         } catch (Exception e) {
             Logger.error("Erro ao criar Task", e);
             return null;
         }
     }
 
-    private static String indent(int nivel) {
-        return "    ".repeat(nivel);
-    }
-
+    /**
+     * Salva tasks em JSON usando StringBuilder funcional
+     */
     public static void salvarEmJson(List<Task> lista) throws IOException {
         if (lista == null) {
             Logger.error("Lista de tasks não pode ser null");
@@ -146,82 +126,10 @@ public class JsonManager {
         }
 
         Logger.debug("Construindo JSON com " + lista.size() + " task(s)");
-        StringBuilder builder = new StringBuilder();
 
         try {
-            builder.append("[");
-
-            for (int i = 0; i < lista.size(); i++) {
-                Task task = lista.get(i);
-
-                if (task == null) {
-                    Logger.warn("Task null na posição " + i + ", ignorando");
-                    continue;
-                }
-
-                builder.append("\n");
-                builder.append(indent(1));
-                builder.append("{\n");
-
-                builder.append(indent(2));
-                builder.append("\"Id\": ");
-                builder.append(task.getId());
-                builder.append(",\n");
-
-                builder.append(indent(2));
-                builder.append("\"Nome\": \"");
-                builder.append(escaparString(task.getNome()));
-                builder.append("\",\n");
-
-                builder.append(indent(2));
-                builder.append("\"Descricao\": \"");
-                builder.append(escaparString(task.getDescricao()));
-                builder.append("\",\n");
-
-                builder.append(indent(2));
-                builder.append("\"Status\": \"");
-                builder.append(task.getStatus().getDescricao());
-                builder.append("\",\n");
-
-                builder.append(indent(2));
-                builder.append("\"DataDeCriacao\": \"");
-                builder.append(task.getDataDeCriacao().toString());
-                builder.append("\",\n");
-
-                builder.append(indent(2));
-                builder.append("\"DataDeFinalizacao\": ");
-
-                // Usando Optional
-                task.getDataDeFinalizacao().ifPresentOrElse(
-                        data -> {
-                            builder.append("\"");
-                            builder.append(data.toString());
-                            builder.append("\"");
-                        },
-                        () -> builder.append("null")
-                );
-
-                builder.append("\n");
-                builder.append(indent(1));
-                builder.append("}");
-
-                if (i < lista.size() - 1) {
-                    builder.append(",");
-                }
-            }
-
-            builder.append("\n");
-            builder.append("]");
-
-        } catch (Exception e) {
-            Logger.error("Erro ao construir JSON", e);
-            throw new IOException("Erro ao construir JSON", e);
-        }
-
-        Logger.debug("Escrevendo JSON no arquivo...");
-        try (FileWriter writer = new FileWriter("tasks.json")) {
-            writer.write(builder.toString());
-            writer.flush();
+            String json = construirJson(lista);
+            Files.writeString(Path.of("tasks.json"), json);
             Logger.success("Arquivo tasks.json salvo com sucesso");
         } catch (IOException e) {
             Logger.error("Erro ao escrever arquivo tasks.json", e);
@@ -229,12 +137,54 @@ public class JsonManager {
         }
     }
 
+    /**
+     * Constrói o JSON usando streams e lambdas
+     */
+    private static String construirJson(List<Task> lista) {
+        String tasksJson = lista.stream()
+                .filter(Objects::nonNull)
+                .map(JsonManager::taskParaJson)
+                .collect(Collectors.joining(",\n"));
+
+        return "[\n" + tasksJson + "\n]";
+    }
+
+    /**
+     * Converte uma Task para JSON usando lambda
+     */
+    private static String taskParaJson(Task task) {
+        return String.format("""
+                {
+                    "Id": %d,
+                    "Nome": "%s",
+                    "Descricao": "%s",
+                    "Status": "%s",
+                    "DataDeCriacao": "%s",
+                    "DataDeFinalizacao": %s
+                }""",
+                        task.getId(),
+                        escaparString(task.getNome()),
+                        escaparString(task.getDescricao()),
+                        task.getStatus().getDescricao(),
+                        task.getDataDeCriacao().toString(),
+                        task.getDataDeFinalizacao()
+                                .map(data -> "\"" + data.toString() + "\"")
+                                .orElse("null")
+                ).lines()
+                .map(linha -> "    " + linha)
+                .collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * Escapa caracteres especiais
+     */
     private static String escaparString(String str) {
-        if (str == null) return "";
-        return str.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+        return Optional.ofNullable(str)
+                .map(s -> s.replace("\\", "\\\\")
+                        .replace("\"", "\\\"")
+                        .replace("\n", "\\n")
+                        .replace("\r", "\\r")
+                        .replace("\t", "\\t"))
+                .orElse("");
     }
 }

@@ -2,14 +2,13 @@ package br.com.famel.model.entities;
 
 import br.com.famel.model.util.Logger;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Repositório responsável por gerenciar todas as operações com Tasks
+ * Repositório refatorado com lambdas e functional programming
  */
 public class TaskRepository {
     private List<Task> tasks;
@@ -43,20 +42,17 @@ public class TaskRepository {
      * Adiciona uma nova task
      */
     public boolean adicionar(Task task) {
-        if (task == null) {
-            Logger.warn("Tentativa de adicionar task null");
-            return false;
-        }
-
-        try {
-            tasks.add(task);
-            modificado = true;
-            Logger.operacao("CRIAR", "Task #" + task.getId() + " - " + task.getNome());
-            return true;
-        } catch (Exception e) {
-            Logger.error("Erro ao adicionar task", e);
-            return false;
-        }
+        return Optional.ofNullable(task)
+                .map(t -> {
+                    tasks.add(t);
+                    modificado = true;
+                    Logger.operacao("CRIAR", "Task #" + t.getId() + " - " + t.getNome());
+                    return true;
+                })
+                .orElseGet(() -> {
+                    Logger.warn("Tentativa de adicionar task null");
+                    return false;
+                });
     }
 
     /**
@@ -64,102 +60,107 @@ public class TaskRepository {
      */
     public Optional<Task> buscarPorId(int id) {
         Logger.debug("Buscando task com ID: " + id);
-        Optional<Task> resultado = tasks.stream()
+
+        return tasks.stream()
                 .filter(t -> t.getId() == id)
-                .findFirst();
-
-        if (resultado.isEmpty()) {
-            Logger.warn("Task com ID " + id + " não encontrada");
-        }
-
-        return resultado;
+                .findFirst()
+                .or(() -> {
+                    Logger.warn("Task com ID " + id + " não encontrada");
+                    return Optional.empty();
+                });
     }
 
     /**
-     * Atualiza uma task existente
+     * Método genérico para atualizar qualquer campo de uma task
+     */
+    private boolean atualizarCampo(int id, String operacao, Consumer<Task> atualizacao) {
+        return buscarPorId(id)
+                .map(task -> {
+                    atualizacao.accept(task);
+                    modificado = true;
+                    Logger.operacao(operacao, "Task #" + id);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    /**
+     * Atualiza o nome usando o método genérico
+     */
+    public boolean atualizarNome(int id, String novoNome) {
+        return atualizarCampo(id, "ATUALIZAR NOME",
+                task -> task.setNome(novoNome));
+    }
+
+    /**
+     * Atualiza a descrição usando o método genérico
+     */
+    public boolean atualizarDescricao(int id, String novaDescricao) {
+        return atualizarCampo(id, "ATUALIZAR DESCRIÇÃO",
+                task -> task.setDescricao(novaDescricao));
+    }
+
+    /**
+     * Atualiza o status usando o método genérico
+     */
+    public boolean atualizarStatus(int id, Status novoStatus) {
+        return atualizarCampo(id, "ATUALIZAR STATUS",
+                task -> task.setStatus(novoStatus));
+    }
+
+    /**
+     * Atualiza uma task completa
      */
     public boolean atualizar(int id, Task taskAtualizada) {
-        Optional<Task> taskOpt = buscarPorId(id);
-
-        if (taskOpt.isEmpty()) {
-            Logger.warn("Tentativa de atualizar task inexistente: ID " + id);
-            return false;
-        }
-
-        Task task = taskOpt.get();
-        task.setNome(taskAtualizada.getNome());
-        task.setDescricao(taskAtualizada.getDescricao());
-        task.setStatus(taskAtualizada.getStatus().getDescricao());
-
-        modificado = true;
-        Logger.operacao("ATUALIZAR", "Task #" + id + " - " + task.getNome());
-        return true;
+        return atualizarCampo(id, "ATUALIZAR", task -> {
+            task.setNome(taskAtualizada.getNome());
+            task.setDescricao(taskAtualizada.getDescricao());
+            task.setStatus(taskAtualizada.getStatus());
+        });
     }
 
-    public boolean atualizarNome(int id, String novoNome) {
+    /**
+     * Remove uma task por ID usando Optional
+     */
+    public boolean remover(int id) {
         return buscarPorId(id)
                 .map(task -> {
-                    task.setNome(novoNome);
-                    modificado = true;
-                    Logger.operacao("ATUALIZAR NOME", "Task #" + id + " -> " + novoNome);
-                    return true;
-                })
-                .orElse(false);
-    }
-
-    public boolean atualizarDescricao(int id, String novaDescricao) {
-        return buscarPorId(id)
-                .map(task -> {
-                    task.setDescricao(novaDescricao);
-                    modificado = true;
-                    Logger.operacao("ATUALIZAR DESCRIÇÃO", "Task #" + id);
-                    return true;
-                })
-                .orElse(false);
-    }
-
-    public boolean atualizarStatus(int id, Status novoStatus) {
-        return buscarPorId(id)
-                .map(task -> {
-                    task.setStatus(novoStatus.getDescricao());
-                    modificado = true;
-                    Logger.operacao("ATUALIZAR STATUS", "Task #" + id + " -> " + novoStatus.getDescricao());
-                    return true;
+                    boolean removeu = tasks.removeIf(t -> t.getId() == id);
+                    if (removeu) {
+                        modificado = true;
+                        Logger.operacao("DELETAR", "Task #" + id + " - " + task.getNome());
+                    }
+                    return removeu;
                 })
                 .orElse(false);
     }
 
     /**
-     * Remove uma task por ID
+     * Lista todas as tasks (cópia imutável)
      */
-    public boolean remover(int id) {
-        Optional<Task> taskOpt = buscarPorId(id);
-
-        if (taskOpt.isEmpty()) {
-            return false;
-        }
-
-        Task task = taskOpt.get();
-        boolean removeu = tasks.removeIf(t -> t.getId() == id);
-
-        if (removeu) {
-            modificado = true;
-            Logger.operacao("DELETAR", "Task #" + id + " - " + task.getNome());
-        }
-
-        return removeu;
-    }
-
     public List<Task> listarTodas() {
         Logger.debug("Listando todas as tasks: " + tasks.size() + " encontradas");
-        return new ArrayList<>(tasks);
+        return List.copyOf(tasks);
     }
 
-    public List<Task> listarPorStatus(Status status) {
-        Logger.debug("Filtrando tasks por status: " + status.getDescricao());
+    /**
+     * Método genérico para filtrar tasks
+     */
+    private List<Task> filtrar(Predicate<Task> predicado, String descricao) {
+        Logger.debug("Filtrando tasks: " + descricao);
         return tasks.stream()
-                .filter(t -> t.getStatus().equals(status))
+                .filter(predicado)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lista por status usando o método genérico
+     */
+    public List<Task> listarPorStatus(Status status) {
+        return filtrar(
+                t -> t.getStatus().equals(status),
+                "status=" + status.getDescricao()
+        );
     }
 
     public List<Task> listarProntas() {
@@ -175,42 +176,49 @@ public class TaskRepository {
     }
 
     /**
-     * Busca tasks por texto retornando Optional se não encontrar nada
+     * Busca tasks por texto usando Optional
      */
     public Optional<List<Task>> buscarPorTextoOptional(String texto) {
-        if (texto == null || texto.trim().isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<Task> resultados = buscarPorTexto(texto);
-        return resultados.isEmpty() ? Optional.empty() : Optional.of(resultados);
+        return Optional.ofNullable(texto)
+                .filter(t -> !t.trim().isEmpty())
+                .map(this::buscarPorTexto)
+                .filter(lista -> !lista.isEmpty());
     }
 
+    /**
+     * Busca tasks por texto no nome ou descrição
+     */
     public List<Task> buscarPorTexto(String texto) {
-        if (texto == null || texto.trim().isEmpty()) {
-            return new ArrayList<>();
-        }
+        return Optional.ofNullable(texto)
+                .filter(t -> !t.trim().isEmpty())
+                .map(t -> {
+                    String buscaLower = t.toLowerCase();
+                    Logger.debug("Buscando tasks com texto: " + t);
 
-        String buscaLower = texto.toLowerCase();
-        Logger.debug("Buscando tasks com texto: " + texto);
+                    List<Task> resultados = filtrar(
+                            task -> task.getNome().toLowerCase().contains(buscaLower) ||
+                                    task.getDescricao().toLowerCase().contains(buscaLower),
+                            "texto contém '" + t + "'"
+                    );
 
-        List<Task> resultados = tasks.stream()
-                .filter(t ->
-                        t.getNome().toLowerCase().contains(buscaLower) ||
-                                t.getDescricao().toLowerCase().contains(buscaLower)
-                )
-                .collect(Collectors.toList());
-
-        Logger.info("Busca retornou " + resultados.size() + " resultado(s)");
-        return resultados;
+                    Logger.info("Busca retornou " + resultados.size() + " resultado(s)");
+                    return resultados;
+                })
+                .orElse(new ArrayList<>());
     }
 
+    /**
+     * Lista ordenadas por comparador
+     */
     public List<Task> listarOrdenadas(Comparator<Task> comparator) {
         return tasks.stream()
                 .sorted(comparator)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Lista por data de criação (mais recentes primeiro)
+     */
     public List<Task> listarPorDataCriacao() {
         Logger.debug("Ordenando tasks por data de criação");
         return listarOrdenadas(
@@ -218,17 +226,24 @@ public class TaskRepository {
         );
     }
 
+    /**
+     * Lista por nome alfabeticamente
+     */
     public List<Task> listarPorNome() {
         Logger.debug("Ordenando tasks por nome");
-        return listarOrdenadas(
-                Comparator.comparing(Task::getNome)
-        );
+        return listarOrdenadas(Comparator.comparing(Task::getNome));
     }
 
+    /**
+     * Conta total de tasks
+     */
     public int contar() {
         return tasks.size();
     }
 
+    /**
+     * Conta tasks por status
+     */
     public int contarPorStatus(Status status) {
         return (int) tasks.stream()
                 .filter(t -> t.getStatus().equals(status))
@@ -258,6 +273,9 @@ public class TaskRepository {
         }
     }
 
+    /**
+     * Salva apenas se foi modificado
+     */
     public boolean salvarSeModificado() {
         if (!modificado) {
             Logger.info("Nenhuma alteração detectada, não é necessário salvar");
@@ -273,12 +291,18 @@ public class TaskRepository {
         }
     }
 
+    /**
+     * Recarrega tasks do arquivo
+     */
     public void recarregar() {
         Logger.info("Recarregando tasks do arquivo...");
         carregarTasks();
         modificado = false;
     }
 
+    /**
+     * Limpa todas as tasks
+     */
     public void limparTudo() {
         Logger.warn("Limpando todas as tasks da memória");
         tasks.clear();
@@ -286,37 +310,43 @@ public class TaskRepository {
     }
 
     /**
-     * Retorna estatísticas sobre as tasks
+     * Retorna estatísticas usando Map funcional
      */
     public String obterEstatisticas() {
-        int total = contar();
-        int pendentes = contarPorStatus(Status.PARA_FAZER);
-        int emProgresso = contarPorStatus(Status.FAZENDO);
-        int prontas = contarPorStatus(Status.PRONTA);
+        Map<String, Integer> stats = Map.of(
+                "total", contar(),
+                "pendentes", contarPorStatus(Status.PARA_FAZER),
+                "emProgresso", contarPorStatus(Status.FAZENDO),
+                "prontas", contarPorStatus(Status.PRONTA)
+        );
 
         Logger.debug("Gerando estatísticas das tasks");
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n╔════════════════════════════════════════╗\n");
-        sb.append("║           ESTATÍSTICAS               ║\n");
-        sb.append("╠════════════════════════════════════════╣\n");
-        sb.append(String.format("║ Total de tasks:        %-14d ║\n", total));
-        sb.append(String.format("║ Para fazer:            %-14d ║\n", pendentes));
-        sb.append(String.format("║ Em progresso:          %-14d ║\n", emProgresso));
-        sb.append(String.format("║ Prontas:               %-14d ║\n", prontas));
+        double percentual = stats.get("total") > 0
+                ? (stats.get("prontas") * 100.0) / stats.get("total")
+                : 0.0;
 
-        if (total > 0) {
-            double percentualCompleto = (prontas * 100.0) / total;
-            sb.append(String.format("║ Progresso:             %.1f%%         ║\n", percentualCompleto));
-        }
-
-        sb.append("╚════════════════════════════════════════╝");
-
-        return sb.toString();
+        return String.format("""
+            
+            ╔════════════════════════════════════════╗
+            ║           ESTATÍSTICAS               ║
+            ╠════════════════════════════════════════╣
+            ║ Total de tasks:        %-14d ║
+            ║ Para fazer:            %-14d ║
+            ║ Em progresso:          %-14d ║
+            ║ Prontas:               %-14d ║
+            ║ Progresso:             %.1f%%         ║
+            ╚════════════════════════════════════════╝""",
+                stats.get("total"),
+                stats.get("pendentes"),
+                stats.get("emProgresso"),
+                stats.get("prontas"),
+                percentual
+        );
     }
 
     /**
-     * Retorna a primeira task com determinado status usando Optional
+     * Busca primeira task com status usando Optional
      */
     public Optional<Task> buscarPrimeiraComStatus(Status status) {
         return tasks.stream()
@@ -325,7 +355,7 @@ public class TaskRepository {
     }
 
     /**
-     * Verifica se existe alguma task com determinado status
+     * Verifica se existe task com determinado status
      */
     public boolean existeComStatus(Status status) {
         return tasks.stream()
